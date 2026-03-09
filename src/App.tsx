@@ -1,6 +1,7 @@
 import { useNotes } from "./hooks/use-notes";
 import { Home } from "./pages/Home";
 import { AuthPage } from "./pages/auth";
+import { ThemeProvider } from "./components/theme-provider";
 
 function App() {
   const { isAuthenticated } = useNotes();
@@ -12,4 +13,12 @@ function App() {
   return <Home />;
 }
 
-export default App;
+function Root() {
+  return (
+    <ThemeProvider>
+      <App />
+    </ThemeProvider>
+  );
+}
+
+export default Root;
