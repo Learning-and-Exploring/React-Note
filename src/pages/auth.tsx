@@ -92,7 +92,7 @@ export function AuthPage() {
 
           <Button
             type="submit"
-            className="w-full !mt-8"
+            className="w-full mt-8!"
             disabled={
               loading ||
               !email.trim() ||
