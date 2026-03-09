@@ -1,26 +1,15 @@
-import { Button } from "./components/button";
-
+import { useNotes } from "./hooks/use-notes";
+import { Home } from "./pages/Home";
+import { AuthPage } from "./pages/auth";
 
 function App() {
-  return (
-    <>
-      <p className="text-center text-xl mb-4">Welcome Home</p>
+  const { isAuthenticated } = useNotes();
 
-      <div className="flex justify-center gap-4">
-        <Button variant="primary" size="md" onClick={() => alert("Clicked!")}>
-          Click Me
-        </Button>
+  if (!isAuthenticated) {
+    return <AuthPage />;
+  }
 
-        <Button variant="secondary" size="md">
-          Secondary
-        </Button>
-
-        <Button variant="danger" disabled>
-          Disabled
-        </Button>
-      </div>
-    </>
-  );
+  return <Home />;
 }
 
 export default App;
