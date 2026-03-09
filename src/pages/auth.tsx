@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { NotebookPen } from "lucide-react";
 import { Button } from "../components/button";
 import { useNotes } from "../hooks/use-notes";
 
@@ -23,67 +24,65 @@ export function AuthPage() {
       return;
     }
 
-    await register({
+    const success = await register({
       name: name.trim(),
       email: email.trim(),
       password: password.trim(),
     });
 
-    setLocalMessage("Register success. You can login now.");
-    setMode("login");
+    if (success) {
+      setLocalMessage("Register success. You can login now.");
+      setMode("login");
+    }
   };
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md items-center px-4 py-8">
-      <section className="w-full rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h1 className="text-2xl font-bold text-slate-900">Notes Auth</h1>
-        <p className="mt-1 text-sm text-slate-600">Sign in or create an account to continue.</p>
-
-        <div className="mt-5 flex gap-2">
-          <Button
-            variant={isLogin ? "primary" : "secondary"}
-            size="sm"
-            onClick={() => setMode("login")}
-          >
-            Login
-          </Button>
-          <Button
-            variant={!isLogin ? "primary" : "secondary"}
-            size="sm"
-            onClick={() => setMode("register")}
-          >
-            Register
-          </Button>
+    <main className="flex min-h-screen w-full items-center justify-center bg-slate-50 px-4 py-8">
+      <section className="w-full max-w-sm">
+        <div className="flex flex-col items-center text-center">
+          <NotebookPen className="h-10 w-10 text-slate-700" />
+          <h1 className="mt-4 text-2xl font-bold text-slate-900">Welcome to Notes</h1>
+          <p className="mt-2 text-sm text-slate-600">{isLogin ? "Sign in to continue" : "Create an account to start"}</p>
         </div>
 
-        <div className="mt-5 space-y-3">
+        <form className="mt-8 space-y-6" onSubmit={(e) => { e.preventDefault(); void submit(); }}>
           {!isLogin ? (
-            <input
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
-              placeholder="Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
+            <div>
+              <label className="text-xs font-medium text-slate-600">Name</label>
+              <input
+                className="mt-1 block w-full border-0 border-b-2 border-slate-200 bg-transparent px-1 py-2 text-sm outline-none transition-colors focus:border-blue-500"
+                placeholder="Enter your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
           ) : null}
 
-          <input
-            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
-            placeholder="Email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+          <div>
+            <label className="text-xs font-medium text-slate-600">Email</label>
+            <input
+              className="mt-1 block w-full border-0 border-b-2 border-slate-200 bg-transparent px-1 py-2 text-sm outline-none transition-colors focus:border-blue-500"
+              placeholder="Enter your email address"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
 
-          <input
-            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
-            placeholder="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <div>
+            <label className="text-xs font-medium text-slate-600">Password</label>
+            <input
+              className="mt-1 block w-full border-0 border-b-2 border-slate-200 bg-transparent px-1 py-2 text-sm outline-none transition-colors focus:border-blue-500"
+              placeholder="Enter your password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
 
           <Button
-            onClick={() => void submit()}
+            type="submit"
+            className="w-full !mt-8"
             disabled={
               loading ||
               !email.trim() ||
@@ -93,19 +92,31 @@ export function AuthPage() {
           >
             {loading ? "Working..." : isLogin ? "Login" : "Register"}
           </Button>
+        </form>
+
+        <div className="mt-6 text-center text-sm">
+          {isLogin ? (
+            <p className="text-slate-600">
+              Don't have an account?{" "}
+              <button onClick={() => setMode("register")} className="font-medium text-blue-600 hover:underline">
+                Sign up
+              </button>
+            </p>
+          ) : (
+            <p className="text-slate-600">
+              Already have an account?{" "}
+              <button onClick={() => setMode("login")} className="font-medium text-blue-600 hover:underline">
+                Log in
+              </button>
+            </p>
+          )}
         </div>
 
-        {localMessage ? (
-          <div className="mt-4 rounded-md border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-700">
-            {localMessage}
+        {(error || localMessage) && (
+          <div className={`mt-4 rounded-md p-3 text-sm ${error ? "border border-red-300 bg-red-50 text-red-700" : "border border-emerald-300 bg-emerald-50 text-emerald-700"}`}>
+            {error || localMessage}
           </div>
-        ) : null}
-
-        {error ? (
-          <div className="mt-4 rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-700">
-            {error}
-          </div>
-        ) : null}
+        )}
       </section>
     </main>
   );

@@ -1,5 +1,6 @@
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { BASE_URL } from "./note-service";
+import { extractMessage } from "./utils";
 
 export type RegisterPayload = {
   name: string;
@@ -18,15 +19,6 @@ const authApi = axios.create({
     "Content-Type": "application/json",
   },
 });
-
-function extractMessage(error: unknown): string {
-  if (axios.isAxiosError(error)) {
-    const axiosError = error as AxiosError<{ message?: string }>;
-    return axiosError.response?.data?.message ?? axiosError.message;
-  }
-
-  return "Unexpected error";
-}
 
 function extractToken(data: unknown): string {
   if (!data || typeof data !== "object") return "";

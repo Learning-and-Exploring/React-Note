@@ -29,40 +29,38 @@ export function NoteDetail({ noteId, onClose }: NoteDetailProps) {
   };
 
   return (
-    <section className="rounded-xl border border-slate-300 bg-white p-5 shadow-sm">
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="text-xl font-bold text-slate-900">Note Detail</h2>
-        <Button variant="secondary" size="sm" onClick={onClose}>
-          Close
-        </Button>
-      </div>
-
+    <section className="relative h-full w-full bg-white p-6 md:p-12">
       {selectedNote && selectedNote.id === noteId ? (
-        <div className="space-y-3">
-          <p className="text-xs text-slate-500">
+        <div className="mx-auto max-w-3xl">
+          <input
+            className="w-full bg-transparent text-4xl font-bold text-slate-900 outline-none placeholder:text-slate-300"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Untitled"
+          />
+
+          <p className="mt-4 text-sm text-slate-500">
             Last update: {formatDate(selectedNote.updatedAt ?? selectedNote.createdAt)}
           </p>
 
-          <input
-            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Title"
-          />
-
           <textarea
-            className="min-h-28 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
+            className="mt-8 min-h-48 w-full resize-none bg-transparent text-base text-slate-800 outline-none placeholder:text-slate-400"
             value={body}
             onChange={(e) => setBody(e.target.value)}
-            placeholder="Body"
+            placeholder="Start writing here..."
           />
 
-          <Button onClick={handleUpdate} disabled={loading || !title.trim() || !body.trim()}>
-            {loading ? "Saving..." : "Save Changes"}
-          </Button>
+          <div className="mt-8 flex items-center justify-between">
+            <Button onClick={handleUpdate} disabled={loading || !title.trim() || !body.trim()}>
+              {loading ? "Saving..." : "Save Changes"}
+            </Button>
+            <Button variant="secondary" onClick={onClose}>
+              Close
+            </Button>
+          </div>
         </div>
       ) : (
-        <p className="text-sm text-slate-600">Loading note detail...</p>
+        <p className="text-center text-sm text-slate-500">Loading note...</p>
       )}
     </section>
   );

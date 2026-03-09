@@ -1,4 +1,5 @@
-import axios, { AxiosError } from "axios";
+import axios from "axios";
+import { extractMessage } from "./utils";
 
 // const BASE_URL = "http://192.168.1.151:4000";
 const BASE_URL = "http://localhost:4000";
@@ -36,8 +37,10 @@ function normalizeNote(raw: unknown): Note {
     id: Number(record.id ?? record.noteId ?? 0),
     title: String(record.title ?? ""),
     body: String(record.body ?? ""),
-    createdAt: typeof record.createdAt === "string" ? record.createdAt : undefined,
-    updatedAt: typeof record.updatedAt === "string" ? record.updatedAt : undefined,
+    createdAt:
+      typeof record.createdAt === "string" ? record.createdAt : undefined,
+    updatedAt:
+      typeof record.updatedAt === "string" ? record.updatedAt : undefined,
   };
 }
 
@@ -52,15 +55,6 @@ function normalizeNotes(raw: unknown): Note[] {
   }
 
   return [];
-}
-
-function extractMessage(error: unknown): string {
-  if (axios.isAxiosError(error)) {
-    const axiosError = error as AxiosError<{ message?: string }>;
-    return axiosError.response?.data?.message ?? axiosError.message;
-  }
-
-  return "Unexpected error";
 }
 
 export const noteService = {
@@ -102,7 +96,11 @@ export const noteService = {
     }
   },
 
-  async update(id: number, payload: UpdateNotePayload, token: string): Promise<Note> {
+  async update(
+    id: number,
+    payload: UpdateNotePayload,
+    token: string,
+  ): Promise<Note> {
     try {
       const response = await api.patch(`/notes/one-user/${id}`, payload, {
         headers: authHeaders(token),

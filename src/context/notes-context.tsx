@@ -38,8 +38,8 @@ type NotesContextValue = {
   updateNote: (id: number, payload: UpdateNotePayload) => Promise<void>;
   deleteNote: (id: number) => Promise<void>;
   clearSelection: () => void;
-  register: (payload: RegisterInput) => Promise<void>;
-  login: (payload: LoginInput) => Promise<void>;
+  register: (payload: RegisterInput) => Promise<boolean>;
+  login: (payload: LoginInput) => Promise<boolean>;
   logout: () => void;
 };
 
@@ -74,9 +74,11 @@ export function NotesProvider({ children }: { children: ReactNode }) {
 
     try {
       await task();
+      return true;
     } catch (err) {
       const message = err instanceof Error ? err.message : "Unexpected error";
       setError(message);
+      return false;
     } finally {
       setLoading(false);
     }
@@ -84,7 +86,7 @@ export function NotesProvider({ children }: { children: ReactNode }) {
 
   const register = useCallback(
     async (payload: RegisterInput) => {
-      await runWithState(async () => {
+      return runWithState(async () => {
         await authService.register(payload);
       });
     },
@@ -93,7 +95,7 @@ export function NotesProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(
     async (payload: LoginInput) => {
-      await runWithState(async () => {
+      return runWithState(async () => {
         const nextToken = await authService.login(payload);
         setToken(nextToken);
       });
