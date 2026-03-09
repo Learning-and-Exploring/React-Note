@@ -1,6 +1,7 @@
 import axios, { AxiosError } from "axios";
 
-const BASE_URL = "http://192.168.1.151:4000";
+// const BASE_URL = "http://192.168.1.151:4000";
+const BASE_URL = "http://localhost:4000";
 
 export type Note = {
   id: number;
