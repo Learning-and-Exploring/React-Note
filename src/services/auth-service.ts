@@ -28,26 +28,13 @@ function extractMessage(error: unknown): string {
   return "Unexpected error";
 }
 
-function extractToken(raw: unknown): string {
-  if (!raw || typeof raw !== "object") return "";
+function extractToken(data: unknown): string {
+  if (!data || typeof data !== "object") return "";
 
-  const record = raw as Record<string, unknown>;
+  const record = data as Record<string, unknown>;
 
-  const directToken =
-    typeof record.token === "string"
-      ? record.token
-      : typeof record.accessToken === "string"
-        ? record.accessToken
-        : "";
-
-  if (directToken) return directToken;
-
-  const data = record.data;
-  if (data && typeof data === "object") {
-    const dataRecord = data as Record<string, unknown>;
-    if (typeof dataRecord.token === "string") return dataRecord.token;
-    if (typeof dataRecord.accessToken === "string") return dataRecord.accessToken;
-  }
+  if (typeof record.token === "string") return record.token;
+  if (typeof record.accessToken === "string") return record.accessToken;
 
   return "";
 }
@@ -64,7 +51,9 @@ export const authService = {
   async login(payload: LoginPayload): Promise<string> {
     try {
       const response = await authApi.post("/users/login", payload);
-      const token = extractToken(response.data);
+      // Handle responses that might be wrapped in a "data" object
+      const data = response.data?.data ?? response.data;
+      const token = extractToken(data);
 
       if (!token) {
         throw new Error("Login succeeded but token was not returned");
@@ -72,7 +61,6 @@ export const authService = {
 
       return token;
     } catch (error) {
-      if (error instanceof Error) throw error;
       throw new Error(extractMessage(error));
     }
   },
