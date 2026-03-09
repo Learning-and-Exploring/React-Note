@@ -1,34 +1,29 @@
+import { Trash2 } from "lucide-react";
 import { Button } from "./button";
 import { formatDate } from "../utils/format-date";
 import type { Note } from "../services/note-service";
 
 type NoteCardProps = {
   note: Note;
+  isSelected: boolean;
   onView: (id: number) => void;
   onDelete: (id: number) => void;
 };
 
-export function NoteCard({ note, onView, onDelete }: NoteCardProps) {
+export function NoteCard({ note, isSelected, onView, onDelete }: NoteCardProps) {
   return (
-    <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-      <div className="mb-3 flex items-start justify-between gap-3">
-        <h3 className="line-clamp-1 text-lg font-semibold text-slate-900">{note.title}</h3>
-        <span className="text-xs text-slate-500">#{note.id}</span>
-      </div>
-
-      <p className="mb-4 line-clamp-3 text-sm text-slate-700">{note.body}</p>
-
-      <p className="mb-4 text-xs text-slate-500">
-        Updated: {formatDate(note.updatedAt ?? note.createdAt)}
+    <article
+      className={`group relative cursor-pointer rounded-lg p-3 transition-colors ${isSelected ? "bg-blue-50" : "hover:bg-slate-100"}`}
+      onClick={() => onView(note.id)}
+    >
+      <h3 className="line-clamp-1 font-semibold text-slate-800">{note.title || "Untitled"}</h3>
+      <p className="mt-1 line-clamp-2 text-sm text-slate-600">{note.body}</p>
+      <p className="mt-2 text-xs text-slate-400">
+        {formatDate(note.updatedAt ?? note.createdAt)}
       </p>
-
-      <div className="flex gap-2">
-        <Button size="sm" variant="secondary" onClick={() => onView(note.id)}>
-          View / Edit
-        </Button>
-
-        <Button size="sm" variant="danger" onClick={() => onDelete(note.id)}>
-          Delete
+      <div className="absolute right-2 top-2">
+        <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); onDelete(note.id); }} className="invisible h-7 w-7 p-0 opacity-0 group-hover:visible group-hover:opacity-100">
+          <Trash2 className="h-4 w-4" />
         </Button>
       </div>
     </article>

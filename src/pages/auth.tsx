@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NotebookPen } from "lucide-react";
+import { Eye, EyeOff, NotebookPen } from "lucide-react";
 import { Button } from "../components/button";
 import { useNotes } from "../hooks/use-notes";
 
@@ -12,6 +12,7 @@ export function AuthPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [localMessage, setLocalMessage] = useState<string | null>(null);
 
   const isLogin = mode === "login";
@@ -71,13 +72,22 @@ export function AuthPage() {
 
           <div>
             <label className="text-xs font-medium text-slate-600">Password</label>
-            <input
-              className="mt-1 block w-full border-0 border-b-2 border-slate-200 bg-transparent px-1 py-2 text-sm outline-none transition-colors focus:border-blue-500"
-              placeholder="Enter your password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <div className="relative mt-1">
+              <input
+                className="block w-full border-0 border-b-2 border-slate-200 bg-transparent py-2 pl-1 pr-10 text-sm outline-none transition-colors focus:border-blue-500"
+                placeholder="Enter your password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button
+                type="button"
+                className="absolute inset-y-0 right-0 flex items-center pr-1 text-slate-500"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
+            </div>
           </div>
 
           <Button
