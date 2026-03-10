@@ -5,7 +5,6 @@ import {
     Trash2,
     Plus,
     ChevronLeft,
-    ChevronRight,
     StickyNote,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -51,11 +50,11 @@ export function NotionSidebar({
             {/* Sidebar panel */}
             <aside
                 className={cn(
-                    "flex flex-col h-full transition-all duration-300 ease-in-out overflow-hidden shrink-0",
+                    "flex flex-col h-full transition-all duration-300 ease-in-out overflow-hidden shrink-0 py-4",
                     isOpen ? "w-[22rem] " : "w-0 p-0"
                 )}
             >
-                <div className="flex flex-col h-full min-w-[22rem] rounded-3xl bg-white/80 shadow-[0_12px_30px_rgba(0,0,0,0.08)] ring-1 ring-white/70 backdrop-blur dark:bg-zinc-900/80 dark:ring-white/10">
+                <div className="flex flex-col h-full min-w-[22rem] rounded-3xl bg-white/80 ring-1 ring-white/70 backdrop-blur dark:bg-zinc-900/80 dark:ring-white/10">
                     {/* Workspace header */}
                     <div className="flex items-center justify-between px-4 py-4">
                         <div className="flex items-center gap-2 min-w-0">
