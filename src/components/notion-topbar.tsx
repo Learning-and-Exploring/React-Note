@@ -63,7 +63,7 @@ export function NotionTopbar({
 
     return (
         <>
-            <header className="mx-3 mt-3 flex h-12 items-center justify-between rounded-2xl bg-white/80 px-4 shadow-[0_8px_20px_rgba(0,0,0,0.08)] ring-1 ring-white/70 backdrop-blur sm:mx-4 sm:mt-4 dark:bg-zinc-900/70 dark:ring-white/10">
+            <header className="mx-3 mt-3 mb-3 flex h-12 items-center justify-between rounded-2xl bg-white/80 px-4 shadow-[0_8px_20px_rgba(0,0,0,0.08)] ring-1 ring-white/70 backdrop-blur sm:mx-4 sm:mt-4 dark:bg-zinc-900/70 dark:ring-white/10">
                 {/* Left: Sidebar toggle + Breadcrumb */}
                 <div className="flex items-center gap-2 min-w-0">
                     {!isSidebarOpen && (
