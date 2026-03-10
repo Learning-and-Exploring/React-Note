@@ -11,6 +11,7 @@ type NoteCardProps = {
 };
 
 export function NoteCard({ note, isSelected, onView, onDelete }: NoteCardProps) {
+  const previewText = stripHtml(note.body);
   return (
     <article
       className={`group relative cursor-pointer rounded-2xl p-4 shadow-sm transition-all ${
@@ -23,7 +24,9 @@ export function NoteCard({ note, isSelected, onView, onDelete }: NoteCardProps) 
       <h3 className="line-clamp-1 font-semibold tracking-tight text-slate-800 dark:text-slate-100">
         {note.title || "Untitled"}
       </h3>
-      <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-300">{note.body}</p>
+      <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-300">
+        {previewText || "No content yet"}
+      </p>
       <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
         {formatDate(note.updatedAt ?? note.createdAt)}
       </p>
@@ -42,4 +45,13 @@ export function NoteCard({ note, isSelected, onView, onDelete }: NoteCardProps) 
       </div>
     </article>
   );
+}
+
+function stripHtml(html: string) {
+  return html
+    .replace(/<br\s*\/?>/gi, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }

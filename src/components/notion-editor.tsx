@@ -12,26 +12,29 @@ type NotionEditorProps = {
 
 export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
     const [title, setTitle] = useState(note.title);
-    const [body, setBody] = useState(note.body);
+    const [bodyHtml, setBodyHtml] = useState(note.body);
     const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
+    const [isBodyActive, setIsBodyActive] = useState(!isHtmlEmpty(note.body));
 
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const editorRef = useRef<HTMLDivElement>(null);
 
     // Sync when note changes
     useEffect(() => {
         setTitle(note.title);
-        setBody(note.body);
+        setBodyHtml(note.body);
         setSaveStatus("idle");
+        setIsBodyActive(!isHtmlEmpty(note.body));
     }, [note.id]);
 
-    // Auto-resize textarea
+    // Sync editor HTML when note changes
     useEffect(() => {
-        const el = textareaRef.current;
+        const el = editorRef.current;
         if (!el) return;
-        el.style.height = "auto";
-        el.style.height = `${el.scrollHeight}px`;
-    }, [body]);
+        if (el.innerHTML !== bodyHtml) {
+            el.innerHTML = bodyHtml || "";
+        }
+    }, [bodyHtml]);
 
     const scheduleSave = useCallback(
         (nextTitle: string, nextBody: string) => {
@@ -48,12 +51,24 @@ export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
 
     const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setTitle(e.target.value);
-        scheduleSave(e.target.value, body);
+        scheduleSave(e.target.value, bodyHtml);
     };
 
-    const handleBodyChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setBody(e.target.value);
-        scheduleSave(title, e.target.value);
+    const handleBodyInput = () => {
+        const html = editorRef.current?.innerHTML ?? "";
+        const normalized = normalizeHtml(html);
+        setBodyHtml(normalized);
+        scheduleSave(title, normalized);
+    };
+
+    const handleBodyBlur = () => {
+        const html = editorRef.current?.innerHTML ?? "";
+        if (isHtmlEmpty(html)) {
+            setIsBodyActive(false);
+            setBodyHtml("");
+            if (editorRef.current) editorRef.current.innerHTML = "";
+            scheduleSave(title, "");
+        }
     };
 
     return (
@@ -99,22 +114,49 @@ export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
                     </div>
 
                     {/* Body */}
-                    <textarea
-                        ref={textareaRef}
-                        className={cn(
-                            "w-full bg-transparent text-base text-zinc-700 dark:text-zinc-300",
-                            "placeholder:text-zinc-300 dark:placeholder:text-zinc-600",
-                            "outline-none border-none resize-none leading-relaxed",
-                            "caret-zinc-700 dark:caret-zinc-300",
-                            "min-h-[55vh]"
-                        )}
-                        value={body}
-                        onChange={handleBodyChange}
-                        placeholder="Start writing, or press '/' for commands..."
-                        spellCheck={false}
-                    />
+                    {!isBodyActive && isHtmlEmpty(bodyHtml) ? (
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setIsBodyActive(true);
+                                requestAnimationFrame(() => editorRef.current?.focus());
+                            }}
+                            className="flex min-h-[55vh] w-full items-start rounded-2xl border border-dashed border-zinc-200/70 px-4 py-3 text-left text-base text-zinc-400 transition hover:border-zinc-300 hover:text-zinc-500 dark:border-zinc-800/60 dark:text-zinc-500 dark:hover:border-zinc-700 dark:hover:text-zinc-400"
+                        >
+                            Click to start writing, or press "/" for commands...
+                        </button>
+                    ) : (
+                        <div
+                            ref={editorRef}
+                            contentEditable
+                            suppressContentEditableWarning
+                            data-placeholder="Start writing, or press '/' for commands..."
+                            onInput={handleBodyInput}
+                            onBlur={handleBodyBlur}
+                            onFocus={() => setIsBodyActive(true)}
+                            spellCheck={false}
+                            className={cn(
+                                "notion-richtext min-h-[55vh] w-full bg-transparent text-base text-zinc-700 dark:text-zinc-300",
+                                "outline-none border-none leading-relaxed",
+                                "caret-zinc-700 dark:caret-zinc-300"
+                            )}
+                        />
+                    )}
                 </div>
             </div>
         </div>
     );
+}
+
+function isHtmlEmpty(html: string) {
+    const stripped = html
+        .replace(/<br\s*\/?>/gi, "")
+        .replace(/&nbsp;/gi, " ")
+        .replace(/<[^>]*>/g, "")
+        .trim();
+    return stripped.length === 0;
+}
+
+function normalizeHtml(html: string) {
+    return isHtmlEmpty(html) ? "" : html;
 }

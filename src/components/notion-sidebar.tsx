@@ -2,7 +2,6 @@ import {
     Home,
     FileText,
     Star,
-    Trash2,
     Plus,
     ChevronLeft,
     StickyNote,
@@ -13,7 +12,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import type { Note } from "@/services/note-service";
 
-type NavSection = "home" | "notes" | "favorites" | "trash";
+type NavSection = "home" | "notes" | "favorites";
 
 type NotionSidebarProps = {
     notes: Note[];
@@ -31,7 +30,6 @@ const NAV_ITEMS: { id: NavSection; label: string; icon: React.ElementType }[] = 
     { id: "home", label: "Home", icon: Home },
     { id: "notes", label: "Notes", icon: FileText },
     { id: "favorites", label: "Favorites", icon: Star },
-    { id: "trash", label: "Trash", icon: Trash2 },
 ];
 
 export function NotionSidebar({
