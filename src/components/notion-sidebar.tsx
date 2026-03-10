@@ -51,7 +51,7 @@ export function NotionSidebar({
             {/* Sidebar panel */}
             <aside
                 className={cn(
-                    "flex flex-col h-full transition-all duration-300 ease-in-out overflow-hidden shrink-0 mx-5",
+                    "flex flex-col h-full transition-all duration-300 ease-in-out overflow-hidden shrink-0",
                     isOpen ? "w-[22rem] " : "w-0 p-0"
                 )}
             >

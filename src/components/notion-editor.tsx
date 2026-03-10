@@ -59,7 +59,7 @@ export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
     return (
         <div className="flex flex-col h-full">
             {/* Editor content */}
-            <div className="flex-1 overflow-y-auto pb-10 sm:px-4">
+            <div className="flex-1 overflow-y-auto pb-10 px-4">
                 <div className="relative mx-auto rounded-3xl bg-white/85 px-5 py-6 ring-1 ring-white/70 backdrop-blur sm:px-8 sm:py-8 dark:bg-zinc-900/80 dark:ring-white/10">
                     {(saveStatus === "saving" || saveStatus === "saved") && (
                         <div
