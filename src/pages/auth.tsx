@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Eye, EyeOff, NotebookPen } from "lucide-react";
 import { Button } from "../components/button";
+import { Input } from "../components/ui/input";
 import { useNotes } from "../hooks/use-notes";
 
 type AuthMode = "login" | "register";
@@ -38,20 +39,32 @@ export function AuthPage() {
   };
 
   return (
-    <main className="flex min-h-screen w-full items-center justify-center bg-slate-50 px-4 py-8">
-      <section className="w-full max-w-sm">
+    <main className="flex min-h-screen w-full items-center justify-center bg-[#f2f2f7] px-4 py-8 dark:bg-zinc-950">
+      <section className="w-full max-w-md rounded-3xl bg-white/85 px-6 py-8 shadow-[0_18px_40px_rgba(0,0,0,0.08)] ring-1 ring-white/70 backdrop-blur dark:bg-zinc-900/80 dark:ring-white/10">
         <div className="flex flex-col items-center text-center">
-          <NotebookPen className="h-10 w-10 text-slate-700" />
-          <h1 className="mt-4 text-2xl font-bold text-slate-900">Welcome to Notes</h1>
-          <p className="mt-2 text-sm text-slate-600">{isLogin ? "Sign in to continue" : "Create an account to start"}</p>
+          <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-white/70 shadow-sm dark:bg-white/10">
+            <NotebookPen className="h-7 w-7 text-slate-700 dark:text-slate-200" />
+          </div>
+          <h1 className="mt-4 text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+            Welcome to Notes
+          </h1>
+          <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+            {isLogin ? "Sign in to continue" : "Create an account to start"}
+          </p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={(e) => { e.preventDefault(); void submit(); }}>
+        <form
+          className="mt-8 space-y-5"
+          onSubmit={(e) => {
+            e.preventDefault();
+            void submit();
+          }}
+        >
           {!isLogin ? (
             <div>
-              <label className="text-xs font-medium text-slate-600">Name</label>
-              <input
-                className="mt-1 block w-full border-0 border-b-2 border-slate-200 bg-transparent px-1 py-2 text-sm outline-none transition-colors focus:border-blue-500"
+              <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Name</label>
+              <Input
+                className="mt-2"
                 placeholder="Enter your name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -60,9 +73,9 @@ export function AuthPage() {
           ) : null}
 
           <div>
-            <label className="text-xs font-medium text-slate-600">Email</label>
-            <input
-              className="mt-1 block w-full border-0 border-b-2 border-slate-200 bg-transparent px-1 py-2 text-sm outline-none transition-colors focus:border-blue-500"
+            <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Email</label>
+            <Input
+              className="mt-2"
               placeholder="Enter your email address"
               type="email"
               value={email}
@@ -71,10 +84,10 @@ export function AuthPage() {
           </div>
 
           <div>
-            <label className="text-xs font-medium text-slate-600">Password</label>
-            <div className="relative mt-1">
-              <input
-                className="block w-full border-0 border-b-2 border-slate-200 bg-transparent py-2 pl-1 pr-10 text-sm outline-none transition-colors focus:border-blue-500"
+            <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Password</label>
+            <div className="relative mt-2">
+              <Input
+                className="pr-10"
                 placeholder="Enter your password"
                 type={showPassword ? "text" : "password"}
                 value={password}
@@ -82,7 +95,7 @@ export function AuthPage() {
               />
               <button
                 type="button"
-                className="absolute inset-y-0 right-0 flex items-center pr-1 text-slate-500"
+                className="absolute inset-y-0 right-2 flex items-center text-slate-500 dark:text-slate-400"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -92,7 +105,7 @@ export function AuthPage() {
 
           <Button
             type="submit"
-            className="w-full mt-8!"
+            className="w-full"
             disabled={
               loading ||
               !email.trim() ||
@@ -106,16 +119,22 @@ export function AuthPage() {
 
         <div className="mt-6 text-center text-sm">
           {isLogin ? (
-            <p className="text-slate-600">
+            <p className="text-slate-600 dark:text-slate-400">
               Don't have an account?{" "}
-              <button onClick={() => setMode("register")} className="font-medium text-blue-600 hover:underline">
+              <button
+                onClick={() => setMode("register")}
+                className="font-medium text-blue-600 hover:underline"
+              >
                 Sign up
               </button>
             </p>
           ) : (
-            <p className="text-slate-600">
+            <p className="text-slate-600 dark:text-slate-400">
               Already have an account?{" "}
-              <button onClick={() => setMode("login")} className="font-medium text-blue-600 hover:underline">
+              <button
+                onClick={() => setMode("login")}
+                className="font-medium text-blue-600 hover:underline"
+              >
                 Log in
               </button>
             </p>
@@ -123,7 +142,13 @@ export function AuthPage() {
         </div>
 
         {(error || localMessage) && (
-          <div className={`mt-4 rounded-md p-3 text-sm ${error ? "border border-red-300 bg-red-50 text-red-700" : "border border-emerald-300 bg-emerald-50 text-emerald-700"}`}>
+          <div
+            className={`mt-4 rounded-2xl p-3 text-sm ${
+              error
+                ? "bg-red-50 text-red-700 dark:bg-red-500/15 dark:text-red-300"
+                : "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
+            }`}
+          >
             {error || localMessage}
           </div>
         )}

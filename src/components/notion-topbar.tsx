@@ -63,7 +63,7 @@ export function NotionTopbar({
 
     return (
         <>
-            <header className="flex items-center justify-between h-12 px-4 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 shrink-0">
+            <header className="mx-3 mt-3 flex h-12 items-center justify-between rounded-2xl bg-white/80 px-4 shadow-[0_8px_20px_rgba(0,0,0,0.08)] ring-1 ring-white/70 backdrop-blur sm:mx-4 sm:mt-4 dark:bg-zinc-900/70 dark:ring-white/10">
                 {/* Left: Sidebar toggle + Breadcrumb */}
                 <div className="flex items-center gap-2 min-w-0">
                     {!isSidebarOpen && (
@@ -71,8 +71,8 @@ export function NotionTopbar({
                             <TooltipTrigger asChild>
                                 <Button
                                     variant="ghost"
-                                    size="icon"
-                                    className="h-7 w-7 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+                                    size="icon-sm"
+                                    className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
                                     onClick={onToggleSidebar}
                                 >
                                     <Menu className="w-4 h-4" />
@@ -83,14 +83,14 @@ export function NotionTopbar({
                     )}
 
                     {/* Breadcrumb */}
-                    <nav className="flex items-center gap-1 text-sm text-zinc-500 dark:text-zinc-400 min-w-0">
-                        <span className="hover:text-zinc-900 dark:hover:text-zinc-100 cursor-default transition-colors">
+                    <nav className="flex items-center gap-1 text-xs text-zinc-500 min-w-0 dark:text-zinc-400">
+                        <span className="hover:text-zinc-900 cursor-default transition-colors dark:hover:text-zinc-100">
                             {workspaceName}
                         </span>
                         {activeNote && (
                             <>
                                 <ChevronRight className="w-3.5 h-3.5 shrink-0" />
-                                <span className="text-zinc-900 dark:text-zinc-100 font-medium truncate max-w-48">
+                                <span className="text-zinc-900 font-medium truncate max-w-48 dark:text-zinc-100">
                                     {activeNote.title || "Untitled"}
                                 </span>
                             </>
@@ -102,7 +102,7 @@ export function NotionTopbar({
                 <div className="flex items-center gap-1 shrink-0">
                     {/* Last edited */}
                     {activeNote && (
-                        <div className="hidden sm:flex items-center gap-1 text-xs text-zinc-400 dark:text-zinc-500 mr-2">
+                        <div className="hidden sm:flex items-center gap-1 text-xs text-zinc-400 mr-2 dark:text-zinc-500">
                             <Clock className="w-3 h-3" />
                             <span>Edited {formatDate(activeNote.updatedAt ?? activeNote.createdAt)}</span>
                         </div>
@@ -113,8 +113,8 @@ export function NotionTopbar({
                         <TooltipTrigger asChild>
                             <Button
                                 variant="ghost"
-                                size="icon"
-                                className="h-7 w-7 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+                                size="icon-sm"
+                                className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
                             >
                                 <Share className="w-4 h-4" />
                             </Button>
@@ -127,8 +127,8 @@ export function NotionTopbar({
                         <TooltipTrigger asChild>
                             <Button
                                 variant="ghost"
-                                size="icon"
-                                className="h-7 w-7 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+                                size="icon-sm"
+                                className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
                             >
                                 <Star className="w-4 h-4" />
                             </Button>
@@ -141,8 +141,8 @@ export function NotionTopbar({
                         <TooltipTrigger asChild>
                             <Button
                                 variant="ghost"
-                                size="icon"
-                                className="h-7 w-7 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+                                size="icon-sm"
+                                className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
                                 onClick={toggleTheme}
                             >
                                 {resolvedTheme === "dark" ? (
@@ -165,8 +165,8 @@ export function NotionTopbar({
                                     <DropdownMenuTrigger asChild>
                                         <Button
                                             variant="ghost"
-                                            size="icon"
-                                            className="h-7 w-7 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+                                            size="icon-sm"
+                                            className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
                                         >
                                             <MoreHorizontal className="w-4 h-4" />
                                         </Button>
@@ -198,19 +198,14 @@ export function NotionTopbar({
                             Delete page?
                         </AlertDialogTitle>
                         <AlertDialogDescription>
-                            <span className="font-medium text-zinc-900 dark:text-zinc-100">
-                                "{activeNote?.title || "Untitled"}"
-                            </span>{" "}
-                            will be moved to trash. This action cannot be undone.
+                            This action cannot be undone. This will permanently delete the page.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction
-                            className="bg-red-600 hover:bg-red-700 focus:ring-red-600 text-white"
-                            onClick={() => {
-                                if (activeNote) onDeleteNote(activeNote.id);
-                            }}
+                            onClick={() => activeNote && onDeleteNote(activeNote.id)}
+                            className="bg-red-500 hover:bg-red-600"
                         >
                             Delete
                         </AlertDialogAction>

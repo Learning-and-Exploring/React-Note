@@ -7,15 +7,18 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const variantClasses = {
-    primary: "bg-blue-500 hover:bg-blue-600 text-white",
-    secondary: "bg-gray-200 hover:bg-gray-300 text-gray-800",
-    danger: "bg-red-500 hover:bg-red-600 text-white",
+    primary:
+        "bg-[#007AFF] hover:bg-[#0A84FF] text-white shadow-[0_10px_24px_rgba(0,122,255,0.28)] dark:shadow-[0_10px_24px_rgba(10,132,255,0.28)]",
+    secondary:
+        "bg-white/80 hover:bg-white text-slate-800 shadow-[0_8px_20px_rgba(0,0,0,0.08)] dark:bg-zinc-800 dark:text-slate-100",
+    danger:
+        "bg-[#FF3B30] hover:bg-[#FF453A] text-white shadow-[0_10px_24px_rgba(255,59,48,0.28)] dark:shadow-[0_10px_24px_rgba(255,69,58,0.28)]",
 };
 
 const sizeClasses = {
-    sm: "px-3 py-1 text-sm",
-    md: "px-4 py-2 text-base",
-    lg: "px-6 py-3 text-lg",
+    sm: "h-9 px-4 text-sm",
+    md: "h-10 px-5 text-base",
+    lg: "h-12 px-6 text-base",
 };
 
 export const Button: React.FC<ButtonProps> = ({
@@ -26,13 +29,12 @@ export const Button: React.FC<ButtonProps> = ({
     ...props
 }) => {
     const baseClasses =
-        "rounded-md font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer";
+        "rounded-2xl font-semibold tracking-tight transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:ring-offset-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed";
 
     return (
         <button
             {...props}
-            className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${props.disabled ? "opacity-50 cursor-not-allowed" : ""
-                } ${className}`}
+            className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
         >
             {children}
         </button>

@@ -50,9 +50,9 @@ export function NewPageDialog({ open, onOpenChange, onCreate, loading }: NewPage
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="space-y-3 py-2">
+                <div className="space-y-4 py-1">
                     <div>
-                        <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1.5 block">
+                        <label className="text-xs font-semibold text-zinc-500 mb-2 block dark:text-zinc-400">
                             Title <span className="text-red-500">*</span>
                         </label>
                         <Input
@@ -64,14 +64,14 @@ export function NewPageDialog({ open, onOpenChange, onCreate, loading }: NewPage
                         />
                     </div>
                     <div>
-                        <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1.5 block">
+                        <label className="text-xs font-semibold text-zinc-500 mb-2 block dark:text-zinc-400">
                             Content <span className="text-zinc-400">(optional)</span>
                         </label>
                         <Textarea
-                            placeholder="Start writing…"
+                            placeholder="Start writing..."
                             value={body}
                             onChange={(e) => setBody(e.target.value)}
-                            className="text-sm resize-none min-h-24"
+                            className="text-sm resize-none min-h-28"
                         />
                     </div>
                 </div>
@@ -89,7 +89,7 @@ export function NewPageDialog({ open, onOpenChange, onCreate, loading }: NewPage
                         disabled={!title.trim() || loading}
                         className="gap-2"
                     >
-                        {loading ? "Creating…" : "Create page"}
+                        {loading ? "Creating..." : "Create page"}
                     </Button>
                 </DialogFooter>
             </DialogContent>

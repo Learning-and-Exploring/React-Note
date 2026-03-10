@@ -59,11 +59,11 @@ export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
     return (
         <div className="flex flex-col h-full">
             {/* Save status */}
-            <div className="flex items-center justify-end px-8 pt-3 h-8">
+            <div className="flex items-center justify-end px-4 pt-4 sm:px-8">
                 {saveStatus === "saving" && (
-                    <span className="flex items-center gap-1 text-xs text-zinc-400 dark:text-zinc-500">
+                    <span className="flex items-center gap-1 text-xs text-zinc-400">
                         <Loader2 className="w-3 h-3 animate-spin" />
-                        Saving…
+                        Saving...
                     </span>
                 )}
                 {saveStatus === "saved" && (
@@ -75,12 +75,12 @@ export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
             </div>
 
             {/* Editor content */}
-            <div className="flex-1 overflow-y-auto px-8 sm:px-16 md:px-24 pb-32">
-                <div className="max-w-3xl mx-auto pt-8">
+            <div className="flex-1 overflow-y-auto px-4 pb-10 sm:px-6">
+                <div className="mx-auto max-w-4xl rounded-3xl bg-white/85 px-5 py-6 shadow-[0_18px_40px_rgba(0,0,0,0.08)] ring-1 ring-white/70 backdrop-blur sm:px-8 sm:py-8 dark:bg-zinc-900/80 dark:ring-white/10">
                     {/* Title */}
                     <input
                         className={cn(
-                            "w-full bg-transparent text-4xl font-bold text-zinc-900 dark:text-zinc-50",
+                            "w-full bg-transparent text-3xl sm:text-4xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100",
                             "placeholder:text-zinc-300 dark:placeholder:text-zinc-600",
                             "outline-none border-none resize-none leading-tight mb-4",
                             "caret-zinc-900 dark:caret-zinc-100"
@@ -93,7 +93,7 @@ export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
 
                     {/* Divider hint */}
                     <div className="flex items-center gap-3 mb-6 group">
-                        <div className="h-px flex-1 bg-zinc-100 dark:bg-zinc-800 group-hover:bg-zinc-200 dark:group-hover:bg-zinc-700 transition-colors" />
+                        <div className="h-px flex-1 bg-zinc-100 group-hover:bg-zinc-200 transition-colors dark:bg-zinc-800 dark:group-hover:bg-zinc-700" />
                     </div>
 
                     {/* Body */}
@@ -104,11 +104,11 @@ export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
                             "placeholder:text-zinc-300 dark:placeholder:text-zinc-600",
                             "outline-none border-none resize-none leading-relaxed",
                             "caret-zinc-700 dark:caret-zinc-300",
-                            "min-h-[60vh]"
+                            "min-h-[55vh]"
                         )}
                         value={body}
                         onChange={handleBodyChange}
-                        placeholder="Start writing, or press '/' for commands…"
+                        placeholder="Start writing, or press '/' for commands..."
                         spellCheck={false}
                     />
                 </div>

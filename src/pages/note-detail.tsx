@@ -30,8 +30,8 @@ export function NoteDetail({ noteId, onClose }: NoteDetailProps) {
   };
 
   return (
-    <section className="relative flex h-full w-full flex-col bg-white">
-      <header className="flex flex-shrink-0 items-center justify-end gap-2 border-b p-3">
+    <section className="relative flex h-full w-full flex-col bg-[#f2f2f7] dark:bg-zinc-950">
+      <header className="mx-4 mt-4 flex flex-shrink-0 items-center justify-end gap-2 rounded-2xl bg-white/80 p-3 shadow-[0_8px_20px_rgba(0,0,0,0.08)] ring-1 ring-white/70 backdrop-blur dark:bg-zinc-900/80 dark:ring-white/10">
         <Button onClick={handleUpdate} disabled={loading || !title.trim()}>
           <Save className="mr-2 h-4 w-4" />
           {loading ? "Saving..." : "Save"}
@@ -41,24 +41,24 @@ export function NoteDetail({ noteId, onClose }: NoteDetailProps) {
         </Button>
       </header>
 
-      <div className="flex-grow overflow-y-auto p-6 md:p-12">
+      <div className="flex-grow overflow-y-auto px-4 pb-10 pt-6 sm:px-8">
         {loading && !selectedNote ? (
           <p className="text-center text-sm text-slate-500">Loading note...</p>
         ) : selectedNote && selectedNote.id === noteId ? (
-          <div className="mx-auto max-w-3xl">
+          <div className="mx-auto max-w-3xl rounded-3xl bg-white/85 p-6 shadow-[0_18px_40px_rgba(0,0,0,0.08)] ring-1 ring-white/70 backdrop-blur sm:p-8 dark:bg-zinc-900/80 dark:ring-white/10">
             <input
-              className="w-full bg-transparent text-4xl font-bold text-slate-900 outline-none placeholder:text-slate-400"
+              className="w-full bg-transparent text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900 outline-none placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Untitled"
             />
 
-            <p className="mt-4 text-sm text-slate-500">
+            <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
               Last update: {formatDate(selectedNote.updatedAt ?? selectedNote.createdAt)}
             </p>
 
             <textarea
-              className="mt-8 min-h-[50vh] w-full resize-none bg-transparent text-base text-slate-800 outline-none placeholder:text-slate-400"
+              className="mt-6 min-h-[50vh] w-full resize-none bg-transparent text-base text-slate-700 outline-none placeholder:text-slate-400 leading-relaxed dark:text-slate-300 dark:placeholder:text-slate-500"
               value={body}
               onChange={(e) => setBody(e.target.value)}
               placeholder="Start writing here..."

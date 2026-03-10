@@ -77,7 +77,7 @@ export function Home() {
 
   return (
     <TooltipProvider delayDuration={300}>
-      <div className="flex h-screen overflow-hidden bg-white dark:bg-zinc-950">
+      <div className="flex h-screen overflow-hidden bg-[#f2f2f7] dark:bg-zinc-950">
         {/* Sidebar */}
         <NotionSidebar
           notes={notes}

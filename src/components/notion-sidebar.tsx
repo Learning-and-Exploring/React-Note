@@ -51,65 +51,64 @@ export function NotionSidebar({
             {/* Sidebar panel */}
             <aside
                 className={cn(
-                    "flex flex-col h-full bg-zinc-50 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800",
-                    "transition-all duration-300 ease-in-out overflow-hidden shrink-0",
-                    isOpen ? "w-60" : "w-0"
+                    "flex flex-col h-full transition-all duration-300 ease-in-out overflow-hidden shrink-0 mx-2",
+                    isOpen ? "w-[22rem] " : "w-0 p-0"
                 )}
             >
-                <div className="flex flex-col h-full min-w-60">
+                <div className="flex flex-col h-full min-w-[22rem] rounded-3xl bg-white/80 shadow-[0_12px_30px_rgba(0,0,0,0.08)] ring-1 ring-white/70 backdrop-blur dark:bg-zinc-900/80 dark:ring-white/10">
                     {/* Workspace header */}
-                    <div className="flex items-center justify-between px-3 py-3 h-12">
+                    <div className="flex items-center justify-between px-4 py-4">
                         <div className="flex items-center gap-2 min-w-0">
-                            <div className="w-6 h-6 rounded-md bg-zinc-800 dark:bg-zinc-100 flex items-center justify-center shrink-0">
-                                <StickyNote className="w-3.5 h-3.5 text-white dark:text-zinc-900" />
+                            <div className="w-9 h-9 rounded-2xl bg-zinc-900 flex items-center justify-center shrink-0 dark:bg-zinc-100">
+                                <StickyNote className="w-4 h-4 text-white dark:text-zinc-900" />
                             </div>
-                            <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 truncate">
+                            <span className="text-sm font-semibold tracking-tight text-zinc-900 truncate dark:text-zinc-100">
                                 {workspaceName}
                             </span>
                         </div>
                         <button
                             onClick={onToggle}
-                            className="p-1 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-500 transition-colors shrink-0"
+                            className="p-2 rounded-full bg-white/70 text-zinc-500 shadow-sm hover:text-zinc-900 transition-colors dark:bg-white/10 dark:text-zinc-400 dark:hover:text-zinc-100"
                         >
                             <ChevronLeft className="w-4 h-4" />
                         </button>
                     </div>
 
-                    <Separator className="bg-zinc-200 dark:bg-zinc-800" />
+                    <Separator className="bg-zinc-200/70 dark:bg-white/10" />
 
                     {/* Navigation */}
-                    <nav className="px-2 py-2 space-y-0.5">
+                    <nav className="px-4 py-3 space-y-1.5">
                         {NAV_ITEMS.map(({ id, label, icon: Icon }) => (
                             <button
                                 key={id}
                                 onClick={() => onSelectSection(id)}
                                 className={cn(
-                                    "w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-sm text-left transition-colors",
+                                    "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-[0.95rem] text-left transition-all",
                                     activeSection === id && !activeNoteId
-                                        ? "bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 font-medium"
-                                        : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100"
+                                        ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-800/80 dark:text-zinc-100"
+                                        : "text-zinc-600 hover:bg-white/70 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-white/10 dark:hover:text-zinc-100"
                                 )}
                             >
-                                <Icon className="w-4 h-4 shrink-0" />
+                                <Icon className="w-[1.05rem] h-[1.05rem] shrink-0" />
                                 {label}
                             </button>
                         ))}
                     </nav>
 
-                    <Separator className="mx-2 bg-zinc-200 dark:bg-zinc-800" />
+                    <Separator className="mx-4 bg-zinc-200/70 dark:bg-white/10" />
 
                     {/* Notes list label */}
-                    <div className="px-4 pt-3 pb-1">
-                        <p className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                    <div className="px-4 pt-4 pb-2">
+                        <p className="text-[0.7rem] font-semibold text-zinc-400 uppercase tracking-[0.22em] dark:text-zinc-500">
                             Pages
                         </p>
                     </div>
 
                     {/* Notes list */}
-                    <ScrollArea className="flex-1 px-2">
-                        <div className="space-y-0.5 pb-2">
+                    <ScrollArea className="flex-1 px-4">
+                        <div className="space-y-1 pb-3">
                             {notes.length === 0 ? (
-                                <p className="text-xs text-zinc-400 dark:text-zinc-500 px-2 py-2">
+                                <p className="text-xs text-zinc-400 px-3 py-2 dark:text-zinc-500">
                                     No pages yet
                                 </p>
                             ) : (
@@ -118,13 +117,13 @@ export function NotionSidebar({
                                         key={note.id}
                                         onClick={() => onSelectNote(note.id)}
                                         className={cn(
-                                            "w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-left truncate transition-colors group",
+                                            "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-[0.95rem] text-left truncate transition-all",
                                             activeNoteId === note.id
-                                                ? "bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 font-medium"
-                                                : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100"
+                                                ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-800/80 dark:text-zinc-100"
+                                                : "text-zinc-600 hover:bg-white/70 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-white/10 dark:hover:text-zinc-100"
                                         )}
                                     >
-                                        <FileText className="w-3.5 h-3.5 shrink-0" />
+                                        <FileText className="w-4 h-4 shrink-0" />
                                         <span className="truncate">
                                             {note.title || "Untitled"}
                                         </span>
@@ -134,13 +133,13 @@ export function NotionSidebar({
                         </div>
                     </ScrollArea>
 
-                    <Separator className="bg-zinc-200 dark:bg-zinc-800" />
+                    <Separator className="bg-zinc-200/70 dark:bg-white/10" />
 
                     {/* New Page button */}
-                    <div className="p-2">
+                    <div className="p-3">
                         <Button
-                            variant="ghost"
-                            className="w-full justify-start gap-2 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                            variant="secondary"
+                            className="w-full justify-start gap-2 rounded-2xl"
                             onClick={onNewPage}
                         >
                             <Plus className="w-4 h-4" />
@@ -154,7 +153,7 @@ export function NotionSidebar({
             {!isOpen && (
                 <button
                     onClick={onToggle}
-                    className="fixed left-2 top-3 z-50 p-1.5 rounded-md bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors shadow-sm"
+                    className="fixed left-3 top-4 z-50 p-2.5 rounded-full bg-white/80 text-zinc-600 shadow-[0_8px_20px_rgba(0,0,0,0.12)] ring-1 ring-white/70 backdrop-blur hover:text-zinc-900 transition-colors dark:bg-zinc-900/70 dark:text-zinc-300 dark:ring-white/10 dark:hover:text-zinc-100"
                 >
                     <ChevronRight className="w-4 h-4" />
                 </button>
