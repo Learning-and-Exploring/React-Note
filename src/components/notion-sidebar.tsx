@@ -149,15 +149,7 @@ export function NotionSidebar({
                 </div>
             </aside>
 
-            {/* Collapsed toggle button */}
-            {!isOpen && (
-                <button
-                    onClick={onToggle}
-                    className="fixed left-3 top-4 z-50 p-2.5 rounded-full bg-white/80 text-zinc-600 shadow-[0_8px_20px_rgba(0,0,0,0.12)] ring-1 ring-white/70 backdrop-blur hover:text-zinc-900 transition-colors dark:bg-zinc-900/70 dark:text-zinc-300 dark:ring-white/10 dark:hover:text-zinc-100"
-                >
-                    <ChevronRight className="w-4 h-4" />
-                </button>
-            )}
+            {/* Collapsed toggle button removed; use topbar control */}
         </>
     );
 }
