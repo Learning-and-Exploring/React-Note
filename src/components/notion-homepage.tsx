@@ -13,8 +13,8 @@ export function NotionHomepage({ workspaceName, noteCount, onNewPage }: NotionHo
         hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
     return (
-        <div className="flex flex-col items-center justify-center h-full px-4 py-8 text-center sm:px-8">
-            <div className="max-w-2xl rounded-3xl bg-white/85 p-8 shadow-[0_16px_40px_rgba(0,0,0,0.08)] ring-1 ring-white/70 backdrop-blur dark:bg-zinc-900/80 dark:ring-white/10">
+        <div className="flex-1 overflow-y-auto px-4 pb-10 sm:px-6">
+            <div className="mx-auto w-full min-h-[55vh] rounded-3xl bg-white/85 px-5 py-6 text-center shadow-[0_18px_40px_rgba(0,0,0,0.08)] ring-1 ring-white/70 backdrop-blur sm:px-8 sm:py-8 dark:bg-zinc-900/80 dark:ring-white/10">
                 {/* Icon */}
                 <div className="mx-auto inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-white/70 shadow-sm dark:bg-white/10">
                     <Sparkles className="w-8 h-8 text-zinc-400 dark:text-zinc-500" />
@@ -32,10 +32,10 @@ export function NotionHomepage({ workspaceName, noteCount, onNewPage }: NotionHo
                 </p>
 
                 {/* Quick actions */}
-                <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                <div className="mt-8 grid w-full max-w-md gap-4 mx-auto sm:grid-cols-2">
                     <button
                         onClick={onNewPage}
-                        className="flex items-center gap-3 p-4 rounded-2xl bg-white/80 shadow-sm hover:shadow-md text-left transition-all dark:bg-white/10"
+                        className="w-full flex items-center gap-3 p-4 rounded-2xl bg-white/80 shadow-sm hover:shadow-md text-left transition-all dark:bg-white/10"
                     >
                         <div className="w-9 h-9 rounded-2xl bg-zinc-100 flex items-center justify-center dark:bg-zinc-800">
                             <Plus className="w-4 h-4 text-zinc-600 dark:text-zinc-300" />
@@ -47,7 +47,7 @@ export function NotionHomepage({ workspaceName, noteCount, onNewPage }: NotionHo
                     </button>
 
                     <button
-                        className="flex items-center gap-3 p-4 rounded-2xl bg-white/80 shadow-sm hover:shadow-md text-left transition-all dark:bg-white/10"
+                        className="w-full flex items-center gap-3 p-4 rounded-2xl bg-white/80 shadow-sm hover:shadow-md text-left transition-all dark:bg-white/10"
                         onClick={onNewPage}
                     >
                         <div className="w-9 h-9 rounded-2xl bg-zinc-100 flex items-center justify-center dark:bg-zinc-800">
