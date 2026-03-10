@@ -14,7 +14,7 @@ export function NotionHomepage({ workspaceName, noteCount, onNewPage }: NotionHo
 
     return (
         <div className="flex flex-col items-center justify-center h-full px-4 py-8 text-center sm:px-8">
-            <div className="max-w-2xl w-full rounded-3xl bg-white/85 p-8 shadow-[0_16px_40px_rgba(0,0,0,0.08)] ring-1 ring-white/70 backdrop-blur dark:bg-zinc-900/80 dark:ring-white/10">
+            <div className="max-w-2xl rounded-3xl bg-white/85 p-8 shadow-[0_16px_40px_rgba(0,0,0,0.08)] ring-1 ring-white/70 backdrop-blur dark:bg-zinc-900/80 dark:ring-white/10">
                 {/* Icon */}
                 <div className="mx-auto inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-white/70 shadow-sm dark:bg-white/10">
                     <Sparkles className="w-8 h-8 text-zinc-400 dark:text-zinc-500" />
