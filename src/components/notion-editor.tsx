@@ -58,25 +58,27 @@ export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
 
     return (
         <div className="flex flex-col h-full">
-            {/* Save status */}
-            <div className="flex items-center justify-end px-4 pt-4 sm:px-8">
-                {saveStatus === "saving" && (
-                    <span className="flex items-center gap-1 text-xs text-zinc-400">
-                        <Loader2 className="w-3 h-3 animate-spin" />
-                        Saving...
-                    </span>
-                )}
-                {saveStatus === "saved" && (
-                    <span className="flex items-center gap-1 text-xs text-emerald-500">
-                        <Check className="w-3 h-3" />
-                        Saved
-                    </span>
-                )}
-            </div>
-
             {/* Editor content */}
             <div className="flex-1 overflow-y-auto px-4 pb-10 sm:px-6">
-                <div className="mx-auto rounded-3xl bg-white/85 px-5 py-6 shadow-[0_18px_40px_rgba(0,0,0,0.08)] ring-1 ring-white/70 backdrop-blur sm:px-8 sm:py-8 dark:bg-zinc-900/80 dark:ring-white/10">
+                <div className="relative mx-auto rounded-3xl bg-white/85 px-5 py-6 shadow-[0_18px_40px_rgba(0,0,0,0.08)] ring-1 ring-white/70 backdrop-blur sm:px-8 sm:py-8 dark:bg-zinc-900/80 dark:ring-white/10">
+                    {(saveStatus === "saving" || saveStatus === "saved") && (
+                        <div
+                            aria-live="polite"
+                            className="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs shadow-sm ring-1 ring-black/5 backdrop-blur sm:right-6 sm:top-6 dark:bg-zinc-950/80 dark:ring-white/10"
+                        >
+                            {saveStatus === "saving" ? (
+                                <>
+                                    <Loader2 className="w-3 h-3 animate-spin text-zinc-400" />
+                                    <span className="text-zinc-500">Saving...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Check className="w-3 h-3 text-emerald-500" />
+                                    <span className="text-emerald-500">Saved</span>
+                                </>
+                            )}
+                        </div>
+                    )}
                     {/* Title */}
                     <input
                         className={cn(
