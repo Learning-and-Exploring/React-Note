@@ -115,7 +115,7 @@ export const noteService = {
 
   async softDelete(id: number, token?: string): Promise<void> {
     try {
-      await api.patch(`/notes/${id}/delete`, undefined, {
+      await api.patch(`/notes/one-user/${id}/delete`, undefined, {
         headers: authHeaders(token),
       });
     } catch (error) {
