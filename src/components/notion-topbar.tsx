@@ -3,6 +3,7 @@ import {
     ChevronRight,
     Share,
     Star,
+    Loader2,
     MoreHorizontal,
     Sun,
     Moon,
@@ -45,6 +46,8 @@ type NotionTopbarProps = {
     onDeleteNote: (id: number) => void;
     onToggleFavorite?: () => void;
     isFavorited?: boolean;
+    onShareNote?: () => void;
+    shareLoading?: boolean;
 };
 
 export function NotionTopbar({
@@ -53,6 +56,10 @@ export function NotionTopbar({
     isSidebarOpen,
     onToggleSidebar,
     onDeleteNote,
+    onToggleFavorite,
+    isFavorited,
+    onShareNote,
+    shareLoading,
 }: NotionTopbarProps) {
     const { resolvedTheme, setTheme } = useTheme();
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -115,8 +122,14 @@ export function NotionTopbar({
                                 variant="ghost"
                                 size="icon-sm"
                                 className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+                                onClick={onShareNote}
+                                disabled={!activeNote || shareLoading}
                             >
-                                <Share className="w-4 h-4" />
+                                {shareLoading ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                    <Share className="w-4 h-4" />
+                                )}
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent side="bottom">Share</TooltipContent>
@@ -129,11 +142,18 @@ export function NotionTopbar({
                                 variant="ghost"
                                 size="icon-sm"
                                 className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+                                onClick={onToggleFavorite}
+                                disabled={!activeNote}
                             >
-                                <Star className="w-4 h-4" />
+                                <Star
+                                    className="w-4 h-4"
+                                    fill={isFavorited ? "currentColor" : "none"}
+                                />
                             </Button>
                         </TooltipTrigger>
-                        <TooltipContent side="bottom">Favorite</TooltipContent>
+                        <TooltipContent side="bottom">
+                            {isFavorited ? "Unfavorite" : "Favorite"}
+                        </TooltipContent>
                     </Tooltip>
 
                     {/* Dark mode toggle */}

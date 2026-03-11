@@ -5,6 +5,7 @@ import {
     Plus,
     ChevronLeft,
     StickyNote,
+    LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -12,7 +13,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import type { Note } from "@/services/note-service";
 
-type NavSection = "home" | "notes" | "favorites";
+export type NavSection = "home" | "notes" | "favorites";
 
 type NotionSidebarProps = {
     notes: Note[];
@@ -23,6 +24,7 @@ type NotionSidebarProps = {
     onSelectNote: (id: number) => void;
     onSelectSection: (section: NavSection) => void;
     onNewPage: () => void;
+    onLogout?: () => void;
     workspaceName: string;
 };
 
@@ -41,6 +43,7 @@ export function NotionSidebar({
     onSelectNote,
     onSelectSection,
     onNewPage,
+    onLogout,
     workspaceName,
 }: NotionSidebarProps) {
     return (
@@ -97,7 +100,7 @@ export function NotionSidebar({
                     {/* Notes list label */}
                     <div className="px-4 pt-4 pb-2">
                         <p className="text-[0.7rem] font-semibold text-zinc-400 uppercase tracking-[0.22em] dark:text-zinc-500">
-                            Pages
+                            {activeSection === "favorites" ? "Favorites" : "Pages"}
                         </p>
                     </div>
 
@@ -121,9 +124,12 @@ export function NotionSidebar({
                                         )}
                                     >
                                         <FileText className="w-4 h-4 shrink-0" />
-                                        <span className="truncate">
+                                        <span className="truncate flex-1">
                                             {note.title || "Untitled"}
                                         </span>
+                                        {note.isFavorite && (
+                                            <Star className="w-4 h-4 text-amber-500 fill-amber-500 shrink-0" />
+                                        )}
                                     </button>
                                 ))
                             )}
@@ -133,7 +139,7 @@ export function NotionSidebar({
                     <Separator className="bg-zinc-200/70 dark:bg-white/10" />
 
                     {/* New Page button */}
-                    <div className="p-3">
+                    <div className="p-3 space-y-2">
                         <Button
                             variant="secondary"
                             className="w-full justify-start gap-2 rounded-2xl"
@@ -142,6 +148,17 @@ export function NotionSidebar({
                             <Plus className="w-4 h-4" />
                             New Page
                         </Button>
+
+                        {onLogout && (
+                            <Button
+                                variant="ghost"
+                                className="w-full justify-start gap-2 rounded-2xl text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+                                onClick={onLogout}
+                            >
+                                <LogOut className="w-4 h-4" />
+                                Logout
+                            </Button>
+                        )}
                     </div>
                 </div>
             </aside>

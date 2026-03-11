@@ -37,6 +37,9 @@ type NotesContextValue = {
   createNote: (payload: CreateNotePayload) => Promise<void>;
   updateNote: (id: number, payload: UpdateNotePayload) => Promise<void>;
   deleteNote: (id: number) => Promise<void>;
+  toggleFavorite: (id: number) => Promise<void>;
+  shareNote: (id: number) => Promise<string | null>;
+  unshareNote: (id: number) => Promise<boolean>;
   clearSelection: () => void;
   register: (payload: RegisterInput) => Promise<boolean>;
   login: (payload: LoginInput) => Promise<boolean>;
@@ -104,11 +107,24 @@ export function NotesProvider({ children }: { children: ReactNode }) {
   );
 
   const logout = useCallback(() => {
-    setToken("");
-    setNotes([]);
-    setSelectedNote(null);
-    setError(null);
-  }, [setToken]);
+    const doLogout = async () => {
+      if (token) {
+        try {
+          await authService.logout(token);
+        } catch (err) {
+          // Ignore logout API failures to allow client-side sign-out
+          console.warn("Logout API failed", err);
+        }
+      }
+
+      setToken("");
+      setNotes([]);
+      setSelectedNote(null);
+      setError(null);
+    };
+
+    void doLogout();
+  }, [setToken, token]);
 
   const fetchNotes = useCallback(async () => {
     if (!token) {
@@ -186,6 +202,64 @@ export function NotesProvider({ children }: { children: ReactNode }) {
     [token, runWithState]
   );
 
+  const toggleFavorite = useCallback(
+    async (id: number) => {
+      if (!token) {
+        setError("Token is required");
+        return;
+      }
+
+      await runWithState(async () => {
+        const updated = await noteService.toggleFavorite(id, token);
+
+        setNotes((current) =>
+          current.map((item) =>
+            item.id === id ? { ...item, isFavorite: updated.isFavorite } : item
+          )
+        );
+
+        setSelectedNote((current) =>
+          current && current.id === id
+            ? { ...current, isFavorite: updated.isFavorite }
+            : current
+        );
+      });
+    },
+    [token, runWithState]
+  );
+
+  const shareNote = useCallback(
+    async (id: number) => {
+      if (!token) {
+        setError("Token is required");
+        return null;
+      }
+
+      let link: string | null = null;
+      const ok = await runWithState(async () => {
+        const { shareUrl } = await noteService.share(id, token);
+        link = shareUrl || null;
+      });
+
+      return ok ? link : null;
+    },
+    [token, runWithState]
+  );
+
+  const unshareNote = useCallback(
+    async (id: number) => {
+      if (!token) {
+        setError("Token is required");
+        return false;
+      }
+
+      return runWithState(async () => {
+        await noteService.unshare(id, token);
+      });
+    },
+    [token, runWithState]
+  );
+
   const clearSelection = useCallback(() => {
     setSelectedNote(null);
   }, []);
@@ -210,6 +284,9 @@ export function NotesProvider({ children }: { children: ReactNode }) {
       updateNote,
       deleteNote,
       clearSelection,
+      toggleFavorite,
+      shareNote,
+      unshareNote,
       register,
       login,
       logout,
@@ -227,6 +304,9 @@ export function NotesProvider({ children }: { children: ReactNode }) {
       updateNote,
       deleteNote,
       clearSelection,
+      toggleFavorite,
+      shareNote,
+      unshareNote,
       register,
       login,
       logout,

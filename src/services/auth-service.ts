@@ -13,6 +13,8 @@ export type LoginPayload = {
   password: string;
 };
 
+export type LogoutResponse = { message: string };
+
 const authApi = axios.create({
   baseURL: BASE_URL,
   headers: {
@@ -52,6 +54,20 @@ export const authService = {
       }
 
       return token;
+    } catch (error) {
+      throw new Error(extractMessage(error));
+    }
+  },
+
+  async logout(token: string): Promise<void> {
+    try {
+      await authApi.post(
+        "/users/logout",
+        {},
+        {
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        },
+      );
     } catch (error) {
       throw new Error(extractMessage(error));
     }
