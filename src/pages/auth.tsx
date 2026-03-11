@@ -113,7 +113,7 @@ export function AuthPage() {
               (!isLogin && !name.trim())
             }
           >
-            {loading ? "Working..." : isLogin ? "Login" : "Register"}
+            {loading ? "Loading..." : isLogin ? "Login" : "Register"}
           </Button>
         </form>
 
@@ -145,8 +145,8 @@ export function AuthPage() {
           <div
             className={`mt-4 rounded-2xl p-3 text-sm ${
               error
-                ? "bg-red-50 text-red-700 dark:bg-red-500/15 dark:text-red-300"
-                : "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
+                ? "bg-red-50 text-red-700 dark:bg-red-500/15 dark:text-red-300 text-center"
+                : "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300 text-center"
             }`}
           >
             {error || localMessage}
