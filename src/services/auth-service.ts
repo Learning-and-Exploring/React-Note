@@ -36,7 +36,7 @@ function extractToken(data: unknown): string {
 export const authService = {
   async register(payload: RegisterPayload): Promise<void> {
     try {
-      await authApi.post("/users", payload);
+      await authApi.post("/users/register", payload);
     } catch (error) {
       throw new Error(extractMessage(error));
     }
