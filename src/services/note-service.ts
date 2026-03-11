@@ -1,10 +1,25 @@
 import axios from "axios";
 import { extractMessage } from "./utils";
 
-// Prefer Vite-provided API URL, fallback to local dev server
-const BASE_URL =
-  (typeof import.meta !== "undefined" && import.meta.env?.VITE_API_URL) ||
-  "http://localhost:4000";
+// Use Vite-provided API URL when set, otherwise default to a same-origin
+// "/api" path so requests keep working when front and API are served through
+// Nginx on one host. Trailing slashes are trimmed to avoid double slashes.
+function resolveBaseUrl() {
+  const envUrl =
+    typeof import.meta !== "undefined"
+      ? import.meta.env?.VITE_API_URL
+      : undefined;
+
+  if (typeof envUrl === "string" && envUrl.trim().length > 0) {
+    const normalized = envUrl.trim().replace(/\/$/, "");
+    if (normalized.startsWith("http")) return normalized;
+    return normalized.startsWith("/") ? normalized : `/${normalized}`;
+  }
+
+  return "";
+}
+
+const BASE_URL = resolveBaseUrl();
 
 export type Note = {
   id: number;
@@ -139,9 +154,13 @@ export const noteService = {
 
   async toggleFavorite(id: number, token: string): Promise<Note> {
     try {
-      const response = await api.patch(`/notes/one-user/${id}/favorite`, undefined, {
-        headers: authHeaders(token),
-      });
+      const response = await api.patch(
+        `/notes/one-user/${id}/favorite`,
+        undefined,
+        {
+          headers: authHeaders(token),
+        },
+      );
 
       const data = response.data?.data ?? response.data;
       return normalizeNote(data);
@@ -152,9 +171,13 @@ export const noteService = {
 
   async share(id: number, token: string): Promise<ShareLink> {
     try {
-      const response = await api.post(`/notes/one-user/${id}/share`, undefined, {
-        headers: authHeaders(token),
-      });
+      const response = await api.post(
+        `/notes/one-user/${id}/share`,
+        undefined,
+        {
+          headers: authHeaders(token),
+        },
+      );
 
       return { shareUrl: String(response.data?.shareUrl ?? "") };
     } catch (error) {
