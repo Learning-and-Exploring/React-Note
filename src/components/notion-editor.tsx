@@ -199,7 +199,7 @@ export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
             {/* Editor content */}
             <div className="flex-1 overflow-hidden pb-10 px-4">
                 <div className="relative mx-auto flex flex-col rounded-3xl bg-white/85 px-5 py-6 ring-1 ring-white/70 backdrop-blur sm:px-8 sm:py-8 dark:bg-zinc-900/80 dark:ring-white/10 max-h-[75vh] sm:max-h-[78vh] overflow-hidden">
-                    <div className="sticky top-0 z-10 -mx-5 -mt-6 mb-4 px-5 pt-5 pb-4 sm:-mx-8 sm:-mt-8 sm:px-8 sm:pt-8 bg-white/90 backdrop-blur supports-[backdrop-filter]:backdrop-blur rounded-2xl border border-white/60 shadow-sm dark:bg-zinc-900/90 dark:border-white/10">
+                    <div className="sticky -top-10 z-10 -mx-5 -mt-6 mb-4 px-5 pt-5 pb-4 sm:-mx-8 sm:-mt-8 sm:px-8 sm:pt-8 bg-white/90 backdrop-blur supports-[backdrop-filter]:backdrop-blur rounded-2xl border border-white/60 dark:bg-zinc-900/90 dark:border-white/10">
                         {(saveStatus === "saving" || saveStatus === "saved") && (
                             <div
                                 aria-live="polite"
