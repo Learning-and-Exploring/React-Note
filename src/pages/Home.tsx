@@ -233,6 +233,10 @@ export function Home() {
                         Pin important docs, lists, and ideas. Favorites collect here automatically so you can jump back in
                         fast—no searching required.
                       </p>
+                      <p className="text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+                        Whether it's a meeting agenda, a half-finished idea, or a reference you return to every week—favorites
+                        make sure it's never more than a single click away. Your most important work, always within reach.
+                      </p>
                       <div className="flex flex-wrap gap-3 text-sm text-zinc-500 dark:text-zinc-400">
                         <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1 ring-1 ring-amber-100 shadow-sm dark:bg-white/5 dark:ring-white/10">
                           ⭐ Quick access
@@ -240,6 +244,23 @@ export function Home() {
                         <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1 ring-1 ring-amber-100 shadow-sm dark:bg-white/5 dark:ring-white/10">
                           Sorted for you
                         </span>
+                        <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1 ring-1 ring-amber-100 shadow-sm dark:bg-white/5 dark:ring-white/10">
+                          🔖 Always in sync
+                        </span>
+                      </div>
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        <div className="rounded-2xl bg-white/90 p-4 ring-1 ring-amber-100 shadow-sm dark:bg-white/5 dark:ring-white/10">
+                          <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Always in order</p>
+                          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                            Favorites are sorted automatically so the most relevant notes surface first, every time.
+                          </p>
+                        </div>
+                        <div className="rounded-2xl bg-white/90 p-4 ring-1 ring-amber-100 shadow-sm dark:bg-white/5 dark:ring-white/10">
+                          <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">No clutter</p>
+                          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                            Unstar a note any time to remove it from this view without deleting it.
+                          </p>
+                        </div>
                       </div>
                       <div className="flex flex-wrap items-center gap-3">
                         <button
@@ -284,6 +305,21 @@ export function Home() {
                         Capture ideas with a clean editor, keep favorites close, and share view-only links when you need to
                         loop others in. Everything stays in sync, so you can pick up right where you left off.
                       </p>
+                      <p className="text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+                        We believe a notes app should get out of your way. No bloat, no steep learning curve—just a calm,
+                        distraction-free space to think, write, and organize at your own pace.
+                      </p>
+                      <div className="flex flex-wrap gap-3 text-sm text-zinc-500 dark:text-zinc-400">
+                        <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1 ring-1 ring-indigo-100 shadow-sm dark:bg-white/5 dark:ring-white/10">
+                          ✍️ Clean editor
+                        </span>
+                        <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1 ring-1 ring-indigo-100 shadow-sm dark:bg-white/5 dark:ring-white/10">
+                          🔗 Instant sharing
+                        </span>
+                        <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1 ring-1 ring-indigo-100 shadow-sm dark:bg-white/5 dark:ring-white/10">
+                          🌙 Dark mode
+                        </span>
+                      </div>
                       <div className="grid gap-2 sm:grid-cols-2">
                         <div className="rounded-2xl bg-white/90 p-4 ring-1 ring-zinc-100 shadow-sm dark:bg-white/5 dark:ring-white/10">
                           <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Shareable links</p>
@@ -295,6 +331,18 @@ export function Home() {
                           <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Stay organized</p>
                           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
                             Favorites and quick search keep important pages close.
+                          </p>
+                        </div>
+                        <div className="rounded-2xl bg-white/90 p-4 ring-1 ring-zinc-100 shadow-sm dark:bg-white/5 dark:ring-white/10">
+                          <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Works everywhere</p>
+                          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                            Fully responsive across desktop, tablet, and mobile—your notes follow you.
+                          </p>
+                        </div>
+                        <div className="rounded-2xl bg-white/90 p-4 ring-1 ring-zinc-100 shadow-sm dark:bg-white/5 dark:ring-white/10">
+                          <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">AI-powered chat</p>
+                          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                            Ask questions about your notes or brainstorm new ideas with the built-in chat panel.
                           </p>
                         </div>
                       </div>
