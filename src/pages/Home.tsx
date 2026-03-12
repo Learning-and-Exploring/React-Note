@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { useNotes } from "@/hooks/use-notes";
 import { NotionSidebar, type NavSection } from "@/components/notion-sidebar";
 import { NotionTopbar } from "@/components/notion-topbar";
@@ -11,6 +12,8 @@ import { ShareDialog } from "@/components/share-dialog";
 
 
 export function Home() {
+  const navigate = useNavigate();
+  const { id: routeId } = useParams<{ id?: string }>();
   const {
     notes,
     loading,
@@ -36,18 +39,26 @@ export function Home() {
   const [shareLoading, setShareLoading] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
 
+  const routeNoteId = useMemo(() => {
+    if (!routeId) return null;
+    const parsed = Number(routeId);
+    return Number.isNaN(parsed) ? null : parsed;
+  }, [routeId]);
+
   const handleSelectNote = useCallback(
     async (id: number) => {
       setActiveNoteId(id);
+      navigate(`/notes/${id}`);
       await fetchNoteById(id);
     },
-    [fetchNoteById]
+    [fetchNoteById, navigate]
   );
 
   const handleSelectSection = (section: NavSection) => {
     setActiveSection(section);
     setActiveNoteId(null);
     clearSelection();
+    navigate("/");
   };
 
   const handleNewPage = () => setDialogOpen(true);
@@ -66,6 +77,7 @@ export function Home() {
     await deleteNote(id);
     setActiveNoteId(null);
     clearSelection();
+    navigate("/");
   };
 
   const handleUpdate = useCallback(
@@ -133,6 +145,18 @@ export function Home() {
     setShareError(null);
   }, [activeNote?.id]);
 
+  // Sync URL param to active note selection
+  useEffect(() => {
+    if (routeNoteId === null) {
+      setActiveNoteId(null);
+      clearSelection();
+      return;
+    }
+
+    setActiveNoteId(routeNoteId);
+    void handleSelectNote(routeNoteId);
+  }, [routeNoteId, clearSelection, handleSelectNote]);
+
   const workspaceName = "My Workspace";
 
   return (
@@ -149,6 +173,7 @@ export function Home() {
           onSelectSection={handleSelectSection}
           onNewPage={handleNewPage}
           onLogout={() => void logout()}
+          onOpenChat={() => setChatOpen(true)}
           workspaceName={workspaceName}
         />
 

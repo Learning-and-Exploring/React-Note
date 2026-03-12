@@ -37,6 +37,7 @@ type NotionSidebarProps = {
     onSelectSection: (section: NavSection) => void;
     onNewPage: () => void;
     onLogout?: () => void;
+    onOpenChat?: () => void;
     workspaceName: string;
 };
 
@@ -57,6 +58,7 @@ export function NotionSidebar({
     onSelectSection,
     onNewPage,
     onLogout,
+    onOpenChat,
     workspaceName,
 }: NotionSidebarProps) {
     const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
@@ -108,6 +110,16 @@ export function NotionSidebar({
                                 {label}
                             </button>
                         ))}
+
+                        {onOpenChat && (
+                            <button
+                                onClick={onOpenChat}
+                                className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-[0.95rem] text-left transition-all text-zinc-600 hover:bg-white/70 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-white/10 dark:hover:text-zinc-100"
+                            >
+                                <MessageCircleMore className="w-[1.05rem] h-[1.05rem] shrink-0" />
+                                Chat
+                            </button>
+                        )}
                     </nav>
 
                     <Separator className="mx-4 bg-zinc-200/70 dark:bg-white/10" />
