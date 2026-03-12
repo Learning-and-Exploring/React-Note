@@ -140,36 +140,38 @@ export function NotionSidebar({
                     </div>
 
                     {/* Notes list */}
-                    <ScrollArea className="flex-1 px-4">
-                        <div className="space-y-1 pb-3">
-                            {notes.length === 0 ? (
-                                <p className="text-xs text-zinc-400 px-3 py-2 dark:text-zinc-500">
-                                    No pages yet
-                                </p>
-                            ) : (
-                                notes.map((note) => (
-                                    <button
-                                        key={note.id}
-                                        onClick={() => onSelectNote(note.id)}
-                                        className={cn(
-                                            "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-[0.95rem] text-left truncate transition-all",
-                                            activeNoteId === note.id
-                                                ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-800/80 dark:text-zinc-100"
-                                                : "text-zinc-600 hover:bg-white/70 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-white/10 dark:hover:text-zinc-100"
-                                        )}
-                                    >
-                                        <FileText className="w-4 h-4 shrink-0" />
-                                        <span className="truncate flex-1">
-                                            {note.title || "Untitled"}
-                                        </span>
-                                        {note.isFavorite && (
-                                            <Star className="w-4 h-4 text-amber-500 fill-amber-500 shrink-0" />
-                                        )}
-                                    </button>
-                                ))
-                            )}
-                        </div>
-                    </ScrollArea>
+                    <div className="flex-1 min-h-0 px-4">
+                        <ScrollArea className="h-full">
+                            <div className="space-y-1 pb-3">
+                                {notes.length === 0 ? (
+                                    <p className="text-xs text-zinc-400 px-3 py-2 dark:text-zinc-500">
+                                        No pages yet
+                                    </p>
+                                ) : (
+                                    notes.map((note) => (
+                                        <button
+                                            key={note.id}
+                                            onClick={() => onSelectNote(note.id)}
+                                            className={cn(
+                                                "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-[0.95rem] text-left truncate transition-all",
+                                                activeNoteId === note.id
+                                                    ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-800/80 dark:text-zinc-100"
+                                                    : "text-zinc-600 hover:bg-white/70 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-white/10 dark:hover:text-zinc-100"
+                                            )}
+                                        >
+                                            <FileText className="w-4 h-4 shrink-0" />
+                                            <span className="truncate flex-1">
+                                                {note.title || "Untitled"}
+                                            </span>
+                                            {note.isFavorite && (
+                                                <Star className="w-4 h-4 text-amber-500 fill-amber-500 shrink-0" />
+                                            )}
+                                        </button>
+                                    ))
+                                )}
+                            </div>
+                        </ScrollArea>
+                    </div>
 
                     <Separator className="bg-zinc-200/70 dark:bg-white/10" />
 
