@@ -74,8 +74,13 @@ export function SharedNotePage({ shareToken }: SharedNotePageProps) {
       <div className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-8 sm:py-14">
         <header className="flex flex-col gap-3 rounded-3xl bg-white/85 px-5 py-4 shadow-[0_16px_40px_rgba(0,0,0,0.08)] ring-1 ring-white/70 backdrop-blur sm:flex-row sm:items-center sm:justify-between dark:bg-zinc-900/85 dark:ring-white/10">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-500 text-lg font-semibold text-white shadow-lg select-none">
-              Add Note Logo here
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white shadow-sm ring-1 ring-black/5 dark:bg-white/5 dark:ring-white/10">
+              <img
+                src="/logo.png"
+                alt="Note logo"
+                className="h-8 w-8 object-contain"
+                loading="lazy"
+              />
             </div>
             <div>
               <p className="text-sm text-slate-500 dark:text-slate-400">Shared view</p>
