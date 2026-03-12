@@ -1,4 +1,4 @@
-import { FileText, Plus, Sparkles } from "lucide-react";
+import { FileText, CircleFadingPlus, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type NotionHomepageProps = {
@@ -38,7 +38,7 @@ export function NotionHomepage({ workspaceName, noteCount, onNewPage }: NotionHo
                         className="w-full flex items-center gap-3 p-4 rounded-2xl bg-white/80 shadow-sm hover:shadow-md text-left transition-all dark:bg-white/10"
                     >
                         <div className="w-9 h-9 rounded-2xl bg-zinc-100 flex items-center justify-center dark:bg-zinc-800">
-                            <Plus className="w-4 h-4 text-zinc-600 dark:text-zinc-300" />
+                            <CircleFadingPlus className="w-4 h-4 text-zinc-600 dark:text-zinc-300" />
                         </div>
                         <div>
                             <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">New page</p>
@@ -65,7 +65,7 @@ export function NotionHomepage({ workspaceName, noteCount, onNewPage }: NotionHo
                     className="mt-8 gap-2"
                     onClick={onNewPage}
                 >
-                    <Plus className="w-4 h-4" />
+                    <CircleFadingPlus className="w-4 h-4" />
                     Create your first page
                 </Button>
             </div>
