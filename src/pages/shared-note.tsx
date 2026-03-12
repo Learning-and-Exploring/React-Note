@@ -1,17 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Loader2, ShieldCheck } from "lucide-react";
+import { useParams } from "react-router-dom";
 import { Button } from "@/components/button";
 import { noteService, type Note } from "@/services/note-service";
 import { formatDate } from "@/utils/format-date";
 import { cn } from "@/lib/utils";
 
 type SharedNotePageProps = {
-  shareToken: string;
+  shareToken?: string;
 };
 
 type LoadState = "idle" | "loading" | "error" | "ready";
 
 export function SharedNotePage({ shareToken }: SharedNotePageProps) {
+  const params = useParams<{ token: string }>();
+  const token = shareToken ?? params.token ?? "";
   const [note, setNote] = useState<Note | null>(null);
   const [status, setStatus] = useState<LoadState>("idle");
   const [error, setError] = useState<string | null>(null);
@@ -30,8 +33,16 @@ export function SharedNotePage({ shareToken }: SharedNotePageProps) {
     setStatus("loading");
     setError(null);
 
+    if (!token) {
+      setError("Share link is missing or invalid.");
+      setStatus("error");
+      return () => {
+        active = false;
+      };
+    }
+
     noteService
-      .getSharedByToken(shareToken)
+      .getSharedByToken(token)
       .then((data) => {
         if (!active) return;
         setNote(data);
@@ -47,7 +58,7 @@ export function SharedNotePage({ shareToken }: SharedNotePageProps) {
     return () => {
       active = false;
     };
-  }, [shareToken]);
+  }, [token]);
 
   const lastUpdatedLabel = useMemo(
     () => formatDate(note?.updatedAt ?? note?.createdAt),

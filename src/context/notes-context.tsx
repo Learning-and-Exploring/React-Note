@@ -6,6 +6,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   noteService,
   type CreateNotePayload,
@@ -13,6 +14,15 @@ import {
   type UpdateNotePayload,
 } from "../services/note-service";
 import { authService } from "../services/auth-service";
+import {
+  clearToken as clearTokenAction,
+  setToken as setTokenAction,
+} from "../store/auth-slice";
+import {
+  selectAuthToken,
+  selectIsAuthenticated,
+  type AppDispatch,
+} from "../store";
 
 type RegisterInput = {
   name: string;
@@ -48,28 +58,22 @@ type NotesContextValue = {
 
 export const NotesContext = createContext<NotesContextValue | undefined>(undefined);
 
-const TOKEN_STORAGE_KEY = "note_app_token";
-
 export function NotesProvider({ children }: { children: ReactNode }) {
-  const [token, setTokenState] = useState<string>(() =>
-    localStorage.getItem(TOKEN_STORAGE_KEY) ?? ""
-  );
+  const dispatch = useDispatch<AppDispatch>();
+  const token = useSelector(selectAuthToken);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
   const [notes, setNotes] = useState<Note[]>([]);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const isAuthenticated = Boolean(token);
-
   const setToken = useCallback((nextToken: string) => {
-    setTokenState(nextToken);
-
     if (nextToken) {
-      localStorage.setItem(TOKEN_STORAGE_KEY, nextToken);
+      dispatch(setTokenAction(nextToken));
     } else {
-      localStorage.removeItem(TOKEN_STORAGE_KEY);
+      dispatch(clearTokenAction());
     }
-  }, []);
+  }, [dispatch]);
 
   const runWithState = useCallback(async (task: () => Promise<void>) => {
     setLoading(true);

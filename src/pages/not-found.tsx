@@ -8,10 +8,10 @@ export function NotFound() {
           <FileText className="h-7 w-7 text-slate-300 dark:text-slate-600" />
         </div>
         <h2 className="mt-4 text-xl font-semibold tracking-tight text-slate-800 dark:text-slate-100">
-          Select a note
+          Page not found
         </h2>
         <p className="mt-2 text-base text-slate-500 dark:text-slate-400">
-          Choose a note from the list on the left, or create a new one to get started.
+          The page you are looking for doesn't exist. Check the link or go back home.
         </p>
       </div>
     </section>

@@ -1,38 +1,44 @@
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { useNotes } from "./hooks/use-notes";
 import { Home } from "./pages/Home";
 import { AuthPage } from "./pages/auth";
 import { SharedNotePage } from "./pages/shared-note";
+import { NotFound } from "./pages/not-found";
 import { ThemeProvider } from "./components/theme-provider";
+import { ProtectedRoute } from "./routes/protected-route";
 
-function extractShareToken() {
-  if (typeof window === "undefined") return null;
+function AppRoutes() {
+  const { isAuthenticated } = useNotes();
 
-  const pathname = window.location.pathname;
-  const match = pathname.match(/\/(?:notes\/)?shared\/([^/]+)/i);
-  return match?.[1] ?? null;
+  return (
+    <Routes>
+      <Route path="/shared/:token" element={<SharedNotePage />} />
+      <Route path="/notes/shared/:token" element={<SharedNotePage />} />
+      <Route
+        path="/auth"
+        element={isAuthenticated ? <Navigate to="/" replace /> : <AuthPage />}
+      />
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <Home />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
 }
 
 function App() {
-  const shareToken = extractShareToken();
-  const { isAuthenticated } = useNotes();
-
-  if (shareToken) {
-    return <SharedNotePage shareToken={shareToken} />;
-  }
-
-  if (!isAuthenticated) {
-    return <AuthPage />;
-  }
-
-  return <Home />;
-}
-
-function Root() {
   return (
     <ThemeProvider>
-      <App />
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
     </ThemeProvider>
   );
 }
 
-export default Root;
+export default App;
