@@ -11,6 +11,7 @@ import {
     Clock,
     Menu,
     MessageCircle,
+    Plus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -50,6 +51,7 @@ type NotionTopbarProps = {
     onShareNote?: () => void;
     shareLoading?: boolean;
     onOpenChat?: () => void;
+    onQuickNew?: () => void;
 };
 
 export function NotionTopbar({
@@ -63,6 +65,7 @@ export function NotionTopbar({
     onShareNote,
     shareLoading,
     onOpenChat,
+    onQuickNew,
 }: NotionTopbarProps) {
     const { resolvedTheme, setTheme } = useTheme();
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -136,6 +139,21 @@ export function NotionTopbar({
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent side="bottom">Share</TooltipContent>
+                    </Tooltip>
+
+                    {/* Quick New */}
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                size="icon-sm"
+                                className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+                                onClick={onQuickNew}
+                            >
+                                <Plus className="w-4 h-4" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom">New page</TooltipContent>
                     </Tooltip>
 
                     {/* Chat */}

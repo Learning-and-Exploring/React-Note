@@ -199,6 +199,7 @@ export function Home() {
             onShareNote={handleShare}
             shareLoading={shareLoading}
             onOpenChat={() => setChatOpen(true)}
+            onQuickNew={handleNewPage}
           />
 
           <main className="flex-1 overflow-y-auto">
@@ -217,7 +218,7 @@ export function Home() {
                 />
               </div>
             ) : activeSection === "favorites" ? (
-              <div className="flex h-full items-start justify-center px-6 pb-12 overflow-y-auto">
+              <div className="flex h-full items-start justify-center px-4 pb-12 overflow-y-auto">
                 <div className="relative w-full overflow-hidden rounded-3xl bg-white/85 p-8 shadow-[0_20px_45px_rgba(0,0,0,0.08)] ring-1 ring-white/70 backdrop-blur sm:p-12 dark:bg-zinc-900/85 dark:ring-white/10">
                   <div className="absolute inset-0 bg-gradient-to-br from-amber-50 via-white/60 to-orange-50 dark:from-amber-950/35 dark:via-zinc-900/40 dark:to-orange-950/20 pointer-events-none" />
                   <div className="relative grid gap-10 sm:grid-cols-[0.95fr_1.05fr] items-center">
@@ -256,21 +257,21 @@ export function Home() {
                       <img
                         src={favoritesIllustration}
                         alt="Favorites illustration"
-                        className="w-full max-w-xl mx-auto drop-shadow-[0_18px_45px_rgba(0,0,0,0.1)] rounded-2xl"
+                        className="w-full max-w-xl mx-auto max-h-72 object-contain drop-shadow-[0_18px_45px_rgba(0,0,0,0.1)] rounded-2xl"
                       />
                     </div>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="flex h-full items-start justify-center px-6 pb-12">
+              <div className="flex h-full items-start justify-center px-4 pb-12">
                 <div className="relative w-full overflow-hidden rounded-3xl bg-white/85 p-8 shadow-[0_20px_45px_rgba(0,0,0,0.08)] ring-1 ring-white/70 backdrop-blur sm:p-12 dark:bg-zinc-900/85 dark:ring-white/10">
                   <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-white/60 to-blue-50 dark:from-indigo-950/40 dark:via-zinc-900/40 dark:to-blue-950/20 pointer-events-none" />
                   <div className="relative flex flex-col gap-8">
                     <img
                       src={homeIllustration}
                       alt="Home illustration"
-                      className="w-full rounded-2xl drop-shadow-[0_18px_45px_rgba(0,0,0,0.1)]"
+                      className="w-full max-h-72 object-contain rounded-2xl drop-shadow-[0_18px_45px_rgba(0,0,0,0.1)]"
                     />
                     <div className="space-y-4 text-left">
                       <p className="inline-flex items-center gap-2 rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-indigo-700 shadow-sm dark:bg-indigo-900/40 dark:text-indigo-100">
