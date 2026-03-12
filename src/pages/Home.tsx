@@ -29,6 +29,9 @@ export function Home() {
     logout,
   } = useNotes();
 
+  // Temporary workspace label until user/workspace data is available
+  const workspaceName = "Notebook";
+
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeSection, setActiveSection] = useState<NavSection>("home");
   const [activeNoteId, setActiveNoteId] = useState<number | null>(null);
@@ -190,12 +193,14 @@ export function Home() {
           onNewPage={handleNewPage}
           onLogout={() => void logout()}
           onOpenChat={() => setChatOpen(true)}
+          workspaceName={workspaceName}
         />
 
         {/* Main */}
         <div className="flex flex-col flex-1 min-w-0">
           <NotionTopbar
             activeNote={activeNote}
+            workspaceName={workspaceName}
             isSidebarOpen={sidebarOpen}
             onToggleSidebar={() => setSidebarOpen((v) => !v)}
             onDeleteNote={(id) => void handleDelete(id)}
