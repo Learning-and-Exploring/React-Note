@@ -44,7 +44,7 @@ type NotesContextValue = {
   error: string | null;
   fetchNotes: () => Promise<void>;
   fetchNoteById: (id: number) => Promise<void>;
-  createNote: (payload: CreateNotePayload) => Promise<void>;
+  createNote: (payload: CreateNotePayload) => Promise<Note | null>;
   updateNote: (id: number, payload: UpdateNotePayload) => Promise<void>;
   deleteNote: (id: number) => Promise<void>;
   toggleFavorite: (id: number) => Promise<void>;
@@ -158,13 +158,18 @@ export function NotesProvider({ children }: { children: ReactNode }) {
     async (payload: CreateNotePayload) => {
       if (!token) {
         setError("Token is required");
-        return;
+        return null;
       }
 
-      await runWithState(async () => {
+      let createdNote: Note | null = null;
+
+      const ok = await runWithState(async () => {
         const created = await noteService.create(payload, token);
+        createdNote = created;
         setNotes((current) => [created, ...current]);
       });
+
+      return ok ? createdNote : null;
     },
     [token, runWithState]
   );

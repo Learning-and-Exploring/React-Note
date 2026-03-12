@@ -5,7 +5,6 @@ import { NotionSidebar, type NavSection } from "@/components/notion-sidebar";
 import { NotionTopbar } from "@/components/notion-topbar";
 import { NotionEditor } from "@/components/notion-editor";
 import { NotionHomepage } from "@/components/notion-homepage";
-import { NewPageDialog } from "@/components/new-page-dialog";
 import { ChatPanel } from "@/components/chat-panel";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ShareDialog } from "@/components/share-dialog";
@@ -32,7 +31,6 @@ export function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeSection, setActiveSection] = useState<NavSection>("home");
   const [activeNoteId, setActiveNoteId] = useState<number | null>(null);
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [shareLink, setShareLink] = useState<string | null>(null);
   const [shareError, setShareError] = useState<string | null>(null);
@@ -61,16 +59,21 @@ export function Home() {
     navigate("/");
   };
 
-  const handleNewPage = () => setDialogOpen(true);
+  const handleNewPage = async () => {
+    const created = await createNote({ title: "Untitled", body: "" });
+    if (created) {
+      await handleSelectNote(created.id);
+    }
+  };
 
   const handleCreate = async (payload: { title: string; body: string }) => {
-    await createNote(payload);
-    // Select the newly-created note (it's pushed to front of notes by context)
-    // We need a small tick to let the state update
-    setTimeout(() => {
-      const first = notes[0];
-      if (first) void handleSelectNote(first.id);
-    }, 100);
+    const created = await createNote({
+      title: payload.title || "Untitled",
+      body: payload.body ?? "",
+    });
+    if (created) {
+      await handleSelectNote(created.id);
+    }
   };
 
   const handleDelete = async (id: number) => {
@@ -210,13 +213,6 @@ export function Home() {
         </div>
 
         {/* New Page Dialog */}
-        <NewPageDialog
-          open={dialogOpen}
-          onOpenChange={setDialogOpen}
-          onCreate={handleCreate}
-          loading={loading}
-        />
-
         <ShareDialog
           open={shareDialogOpen}
           onOpenChange={setShareDialogOpen}

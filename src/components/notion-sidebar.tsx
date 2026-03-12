@@ -3,11 +3,11 @@ import {
     FileText,
     Star,
     Plus,
-    MessageCircleMore,
     ChevronLeft,
     StickyNote,
     LogOut,
 } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -25,7 +25,7 @@ import { cn } from "@/lib/utils";
 import type { Note } from "@/services/note-service";
 import { useState } from "react";
 
-export type NavSection = "home" | "notes" | "favorites" | "Chat";
+export type NavSection = "home" | "notes" | "favorites";
 
 type NotionSidebarProps = {
     notes: Note[];
@@ -41,11 +41,18 @@ type NotionSidebarProps = {
     workspaceName: string;
 };
 
-const NAV_ITEMS: { id: NavSection; label: string; icon: React.ElementType }[] = [
-    { id: "home", label: "Home", icon: Home },
-    { id: "notes", label: "Notes", icon: FileText },
-    { id: "favorites", label: "Favorites", icon: Star },
-    { id: "Chat", label: "Chat", icon: MessageCircleMore }
+type NavItem = {
+    id: NavSection | "chat";
+    label: string;
+    icon: React.ElementType;
+    isSection?: boolean;
+};
+
+const NAV_ITEMS: NavItem[] = [
+    { id: "home", label: "Home", icon: Home, isSection: true },
+    { id: "notes", label: "Notes", icon: FileText, isSection: true },
+    { id: "favorites", label: "Favorites", icon: Star, isSection: true },
+    { id: "chat", label: "Chat", icon: MessageCircle, isSection: false },
 ];
 
 export function NotionSidebar({
@@ -95,31 +102,32 @@ export function NotionSidebar({
 
                     {/* Navigation */}
                     <nav className="px-4 py-3 space-y-1.5">
-                        {NAV_ITEMS.map(({ id, label, icon: Icon }) => (
-                            <button
-                                key={id}
-                                onClick={() => onSelectSection(id)}
-                                className={cn(
-                                    "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-[0.95rem] text-left transition-all",
-                                    activeSection === id && !activeNoteId
-                                        ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-800/80 dark:text-zinc-100"
-                                        : "text-zinc-600 hover:bg-white/70 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-white/10 dark:hover:text-zinc-100"
-                                )}
-                            >
-                                <Icon className="w-[1.05rem] h-[1.05rem] shrink-0" />
-                                {label}
-                            </button>
-                        ))}
+                        {NAV_ITEMS.map(({ id, label, icon: Icon, isSection }) => {
+                            const isActive = isSection && activeSection === id && !activeNoteId;
+                            const onClick = () => {
+                                if (id === "chat") {
+                                    onOpenChat?.();
+                                    return;
+                                }
+                                onSelectSection(id as NavSection);
+                            };
 
-                        {onOpenChat && (
-                            <button
-                                onClick={onOpenChat}
-                                className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-[0.95rem] text-left transition-all text-zinc-600 hover:bg-white/70 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-white/10 dark:hover:text-zinc-100"
-                            >
-                                <MessageCircleMore className="w-[1.05rem] h-[1.05rem] shrink-0" />
-                                Chat
-                            </button>
-                        )}
+                            return (
+                                <button
+                                    key={id}
+                                    onClick={onClick}
+                                    className={cn(
+                                        "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-[0.95rem] text-left transition-all",
+                                        isActive
+                                            ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-800/80 dark:text-zinc-100"
+                                            : "text-zinc-600 hover:bg-white/70 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-white/10 dark:hover:text-zinc-100"
+                                    )}
+                                >
+                                    <Icon className="w-[1.05rem] h-[1.05rem] shrink-0" />
+                                    {label}
+                                </button>
+                            );
+                        })}
                     </nav>
 
                     <Separator className="mx-4 bg-zinc-200/70 dark:bg-white/10" />
