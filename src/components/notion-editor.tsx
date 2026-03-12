@@ -197,209 +197,212 @@ export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
     return (
         <div className="flex flex-col h-full">
             {/* Editor content */}
-            <div className="flex-1 overflow-y-auto pb-10 px-4">
-                <div className="relative mx-auto rounded-3xl bg-white/85 px-5 py-6 ring-1 ring-white/70 backdrop-blur sm:px-8 sm:py-8 dark:bg-zinc-900/80 dark:ring-white/10">
-                    {(saveStatus === "saving" || saveStatus === "saved") && (
-                        <div
-                            aria-live="polite"
-                            className="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs shadow-sm ring-1 ring-black/5 backdrop-blur sm:right-6 sm:top-6 dark:bg-zinc-950/80 dark:ring-white/10"
-                        >
-                            {saveStatus === "saving" ? (
-                                <>
-                                    <Loader2 className="w-3 h-3 animate-spin text-zinc-400" />
-                                    <span className="text-zinc-500">Saving...</span>
-                                </>
-                            ) : (
-                                <>
-                                    <Check className="w-3 h-3 text-emerald-500" />
-                                    <span className="text-emerald-500">Saved</span>
-                                </>
-                            )}
-                        </div>
-                    )}
-                    {/* Title */}
-                    <input
-                        className={cn(
-                            "w-full bg-transparent text-3xl sm:text-4xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100",
-                            "placeholder:text-zinc-300 dark:placeholder:text-zinc-600",
-                            "outline-none border-none resize-none leading-tight mb-4",
-                            "caret-zinc-900 dark:caret-zinc-100"
-                        )}
-                        value={title}
-                        onChange={handleTitleChange}
-                        placeholder="Untitled"
-                        spellCheck={false}
-                    />
-
-                    {/* Divider hint */}
-                    <div className="flex items-center gap-3 mb-6 group">
-                        <div className="h-px flex-1 bg-zinc-100 group-hover:bg-zinc-200 transition-colors dark:bg-zinc-800 dark:group-hover:bg-zinc-700" />
-                    </div>
-
-                    {/* Body */}
-                    {!isBodyActive && isHtmlEmpty(bodyHtml) ? (
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setIsBodyActive(true);
-                                requestAnimationFrame(() => editorRef.current?.focus());
-                            }}
-                            className="flex min-h-[55vh] w-full items-start rounded-2xl border border-dashed border-zinc-200/70 px-4 py-3 text-left text-base text-zinc-400 transition hover:border-zinc-300 hover:text-zinc-500 dark:border-zinc-800/60 dark:text-zinc-500 dark:hover:border-zinc-700 dark:hover:text-zinc-400"
-                        >
-                            Click to start writing, or press "/" for commands...
-                        </button>
-                    ) : (
-                        <div
-                            className="relative"
-                            onMouseMove={handleEditorMouseMove}
-                            onMouseLeave={handleEditorMouseLeave}
-                            onClick={() => {
-                                if (editorRef.current) {
-                                    if (isHtmlEmpty(editorRef.current.innerHTML)) {
-                                        editorRef.current.innerHTML = "<p><br /></p>";
-                                    }
-                                    editorRef.current.focus();
-                                }
-                            }}
-                        >
-                            <div className="notion-toolbar mb-4 flex flex-wrap items-center gap-1.5">
-                                <button
-                                    type="button"
-                                    onClick={() => applyBlock("p")}
-                                    data-active={activeMarks.block === "p"}
-                                >
-                                    Text
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => applyBlock("h1")}
-                                    data-active={activeMarks.block === "h1"}
-                                >
-                                    H1
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => applyBlock("h2")}
-                                    data-active={activeMarks.block === "h2"}
-                                >
-                                    H2
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => applyBlock("blockquote")}
-                                    data-active={activeMarks.block === "blockquote"}
-                                >
-                                    Quote
-                                </button>
-                                <span className="mx-1 h-4 w-px bg-zinc-200/70 dark:bg-zinc-800/70" />
-                                <button
-                                    type="button"
-                                    onClick={() => applyCommand("bold")}
-                                    data-active={activeMarks.bold}
-                                >
-                                    Bold
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => applyCommand("italic")}
-                                    data-active={activeMarks.italic}
-                                >
-                                    Italic
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => applyCommand("underline")}
-                                    data-active={activeMarks.underline}
-                                >
-                                    Underline
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => applyCommand("insertUnorderedList")}
-                                    data-active={activeMarks.ul}
-                                >
-                                    Bullet
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => applyCommand("insertOrderedList")}
-                                    data-active={activeMarks.ol}
-                                >
-                                    Numbered
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => applyBlock("pre")}
-                                    data-active={activeMarks.block === "pre"}
-                                >
-                                    Code
-                                </button>
-                            </div>
-
-                            {copyAnchor && (
-                                <button
-                                    type="button"
-                                    onClick={handleCopyCode}
-                                    className="notion-copy-btn"
-                                    style={{ top: copyAnchor.top, left: copyAnchor.left }}
-                                >
-                                    {copyLabel}
-                                </button>
-                            )}
-
-                            {slashMenu.open && (
-                                <div className="notion-slash-menu" style={{ top: slashMenu.top, left: slashMenu.left }}>
-                                    <button type="button" onClick={() => applySlashCommand(() => applyBlock("p"))}>
-                                        Text
-                                    </button>
-                                    <button type="button" onClick={() => applySlashCommand(() => applyBlock("h1"))}>
-                                        Heading 1
-                                    </button>
-                                    <button type="button" onClick={() => applySlashCommand(() => applyBlock("h2"))}>
-                                        Heading 2
-                                    </button>
-                                    <button type="button" onClick={() => applySlashCommand(() => applyBlock("blockquote"))}>
-                                        Quote
-                                    </button>
-                                    <button type="button" onClick={() => applySlashCommand(() => applyCommand("insertUnorderedList"))}>
-                                        Bulleted list
-                                    </button>
-                                    <button type="button" onClick={() => applySlashCommand(() => applyCommand("insertOrderedList"))}>
-                                        Numbered list
-                                    </button>
-                                    <button type="button" onClick={() => applySlashCommand(() => applyBlock("pre"))}>
-                                        Code block
-                                    </button>
-                                </div>
-                            )}
-
+            <div className="flex-1 overflow-hidden pb-10 px-4">
+                <div className="relative mx-auto flex flex-col rounded-3xl bg-white/85 px-5 py-6 ring-1 ring-white/70 backdrop-blur sm:px-8 sm:py-8 dark:bg-zinc-900/80 dark:ring-white/10 max-h-[75vh] sm:max-h-[78vh] overflow-hidden">
+                    <div className="sticky top-0 z-10 -mx-5 -mt-6 mb-4 px-5 pt-5 pb-4 sm:-mx-8 sm:-mt-8 sm:px-8 sm:pt-8 bg-white/90 backdrop-blur supports-[backdrop-filter]:backdrop-blur rounded-2xl border border-white/60 shadow-sm dark:bg-zinc-900/90 dark:border-white/10">
+                        {(saveStatus === "saving" || saveStatus === "saved") && (
                             <div
-                                ref={editorRef}
-                                contentEditable
-                                suppressContentEditableWarning
-                                data-placeholder="Start writing, or press '/' for commands..."
-                                onInput={handleBodyInput}
-                                onBlur={handleBodyBlur}
-                                onFocus={() => setIsBodyActive(true)}
-                                onKeyUp={(e) => {
-                                    if (e.key === "/") {
-                                        openSlashMenu();
-                                    } else if (e.key === "Escape") {
-                                        closeSlashMenu();
-                                    } else {
-                                        updateActiveMarks();
+                                aria-live="polite"
+                                className="absolute right-5 top-5 sm:right-7 sm:top-7 flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs shadow-sm ring-1 ring-black/5 backdrop-blur dark:bg-zinc-950/80 dark:ring-white/10"
+                            >
+                                {saveStatus === "saving" ? (
+                                    <>
+                                        <Loader2 className="w-3 h-3 animate-spin text-zinc-400" />
+                                        <span className="text-zinc-500">Saving...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Check className="w-3 h-3 text-emerald-500" />
+                                        <span className="text-emerald-500">Saved</span>
+                                    </>
+                                )}
+                            </div>
+                        )}
+                        {/* Title */}
+                        <input
+                            className={cn(
+                                "w-full bg-transparent text-3xl sm:text-4xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100",
+                                "placeholder:text-zinc-300 dark:placeholder:text-zinc-600",
+                                "outline-none border-none resize-none leading-tight",
+                                "caret-zinc-900 dark:caret-zinc-100"
+                            )}
+                            value={title}
+                            onChange={handleTitleChange}
+                            placeholder="Untitled"
+                            spellCheck={false}
+                        />
+
+                        {/* Divider hint */}
+                        <div className="flex items-center gap-3 mt-4 group">
+                            <div className="h-px flex-1 bg-zinc-100 group-hover:bg-zinc-200 transition-colors dark:bg-zinc-800 dark:group-hover:bg-zinc-700" />
+                        </div>
+                    </div>
+                    <div className="flex-1 overflow-y-auto pr-1 sm:pr-2">
+                        {/* Body */}
+                        {!isBodyActive && isHtmlEmpty(bodyHtml) ? (
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setIsBodyActive(true);
+                                    requestAnimationFrame(() => editorRef.current?.focus());
+                                }}
+                                className="flex min-h-[55vh] w-full items-start rounded-2xl border border-dashed border-zinc-200/70 px-4 py-3 text-left text-base text-zinc-400 transition hover:border-zinc-300 hover:text-zinc-500 dark:border-zinc-800/60 dark:text-zinc-500 dark:hover:border-zinc-700 dark:hover:text-zinc-400"
+                            >
+                                Click to start writing, or press \"/\" for commands...
+                            </button>
+                        ) : (
+                            <div
+                                className="relative"
+                                onMouseMove={handleEditorMouseMove}
+                                onMouseLeave={handleEditorMouseLeave}
+                                onClick={() => {
+                                    if (editorRef.current) {
+                                        if (isHtmlEmpty(editorRef.current.innerHTML)) {
+                                            editorRef.current.innerHTML = "<p><br /></p>";
+                                        }
+                                        editorRef.current.focus();
                                     }
                                 }}
-                                onMouseUp={updateActiveMarks}
-                                spellCheck={false}
-                                className={cn(
-                                    "notion-richtext min-h-[55vh] w-full bg-transparent text-base text-zinc-700 dark:text-zinc-300",
-                                    "outline-none border-none leading-relaxed",
-                                    "caret-zinc-700 dark:caret-zinc-300"
+                            >
+                                <div className="notion-toolbar mb-4 flex flex-wrap items-center gap-1.5">
+                                    <button
+                                        type="button"
+                                        onClick={() => applyBlock("p")}
+                                        data-active={activeMarks.block === "p"}
+                                    >
+                                        Text
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => applyBlock("h1")}
+                                        data-active={activeMarks.block === "h1"}
+                                    >
+                                        H1
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => applyBlock("h2")}
+                                        data-active={activeMarks.block === "h2"}
+                                    >
+                                        H2
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => applyBlock("blockquote")}
+                                        data-active={activeMarks.block === "blockquote"}
+                                    >
+                                        Quote
+                                    </button>
+                                    <span className="mx-1 h-4 w-px bg-zinc-200/70 dark:bg-zinc-800/70" />
+                                    <button
+                                        type="button"
+                                        onClick={() => applyCommand("bold")}
+                                        data-active={activeMarks.bold}
+                                    >
+                                        Bold
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => applyCommand("italic")}
+                                        data-active={activeMarks.italic}
+                                    >
+                                        Italic
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => applyCommand("underline")}
+                                        data-active={activeMarks.underline}
+                                    >
+                                        Underline
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => applyCommand("insertUnorderedList")}
+                                        data-active={activeMarks.ul}
+                                    >
+                                        Bullet
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => applyCommand("insertOrderedList")}
+                                        data-active={activeMarks.ol}
+                                    >
+                                        Numbered
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => applyBlock("pre")}
+                                        data-active={activeMarks.block === "pre"}
+                                    >
+                                        Code
+                                    </button>
+                                </div>
+
+                                {copyAnchor && (
+                                    <button
+                                        type="button"
+                                        onClick={handleCopyCode}
+                                        className="notion-copy-btn"
+                                        style={{ top: copyAnchor.top, left: copyAnchor.left }}
+                                    >
+                                        {copyLabel}
+                                    </button>
                                 )}
-                            />
-                        </div>
-                    )}
+
+                                {slashMenu.open && (
+                                    <div className="notion-slash-menu" style={{ top: slashMenu.top, left: slashMenu.left }}>
+                                        <button type="button" onClick={() => applySlashCommand(() => applyBlock("p"))}>
+                                            Text
+                                        </button>
+                                        <button type="button" onClick={() => applySlashCommand(() => applyBlock("h1"))}>
+                                            Heading 1
+                                        </button>
+                                        <button type="button" onClick={() => applySlashCommand(() => applyBlock("h2"))}>
+                                            Heading 2
+                                        </button>
+                                        <button type="button" onClick={() => applySlashCommand(() => applyBlock("blockquote"))}>
+                                            Quote
+                                        </button>
+                                        <button type="button" onClick={() => applySlashCommand(() => applyCommand("insertUnorderedList"))}>
+                                            Bulleted list
+                                        </button>
+                                        <button type="button" onClick={() => applySlashCommand(() => applyCommand("insertOrderedList"))}>
+                                            Numbered list
+                                        </button>
+                                        <button type="button" onClick={() => applySlashCommand(() => applyBlock("pre"))}>
+                                            Code block
+                                        </button>
+                                    </div>
+                                )}
+
+                                <div
+                                    ref={editorRef}
+                                    contentEditable
+                                    suppressContentEditableWarning
+                                    data-placeholder="Start writing, or press '/' for commands..."
+                                    onInput={handleBodyInput}
+                                    onBlur={handleBodyBlur}
+                                    onFocus={() => setIsBodyActive(true)}
+                                    onKeyUp={(e) => {
+                                        if (e.key === "/") {
+                                            openSlashMenu();
+                                        } else if (e.key === "Escape") {
+                                            closeSlashMenu();
+                                        } else {
+                                            updateActiveMarks();
+                                        }
+                                    }}
+                                    onMouseUp={updateActiveMarks}
+                                    spellCheck={false}
+                                    className={cn(
+                                        "notion-richtext min-h-[55vh] w-full bg-transparent text-base text-zinc-700 dark:text-zinc-300",
+                                        "outline-none border-none leading-relaxed",
+                                        "caret-zinc-700 dark:caret-zinc-300"
+                                    )}
+                                />
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>
