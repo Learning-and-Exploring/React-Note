@@ -3,6 +3,7 @@ import {
     FileText,
     Star,
     Plus,
+    MessageCircleMore,
     ChevronLeft,
     StickyNote,
     LogOut,
@@ -24,7 +25,7 @@ import { cn } from "@/lib/utils";
 import type { Note } from "@/services/note-service";
 import { useState } from "react";
 
-export type NavSection = "home" | "notes" | "favorites";
+export type NavSection = "home" | "notes" | "favorites" | "Chat";
 
 type NotionSidebarProps = {
     notes: Note[];
@@ -43,6 +44,7 @@ const NAV_ITEMS: { id: NavSection; label: string; icon: React.ElementType }[] = 
     { id: "home", label: "Home", icon: Home },
     { id: "notes", label: "Notes", icon: FileText },
     { id: "favorites", label: "Favorites", icon: Star },
+    { id: "Chat", label: "Chat", icon: MessageCircleMore }
 ];
 
 export function NotionSidebar({

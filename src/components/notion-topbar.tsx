@@ -10,6 +10,7 @@ import {
     Trash2,
     Clock,
     Menu,
+    MessageCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -48,6 +49,7 @@ type NotionTopbarProps = {
     isFavorited?: boolean;
     onShareNote?: () => void;
     shareLoading?: boolean;
+    onOpenChat?: () => void;
 };
 
 export function NotionTopbar({
@@ -60,6 +62,7 @@ export function NotionTopbar({
     isFavorited,
     onShareNote,
     shareLoading,
+    onOpenChat,
 }: NotionTopbarProps) {
     const { resolvedTheme, setTheme } = useTheme();
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -133,6 +136,21 @@ export function NotionTopbar({
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent side="bottom">Share</TooltipContent>
+                    </Tooltip>
+
+                    {/* Chat */}
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                size="icon-sm"
+                                className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+                                onClick={onOpenChat}
+                            >
+                                <MessageCircle className="w-4 h-4" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom">Chat (coming soon)</TooltipContent>
                     </Tooltip>
 
                     {/* Favorite */}

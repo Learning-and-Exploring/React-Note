@@ -5,6 +5,7 @@ import { NotionTopbar } from "@/components/notion-topbar";
 import { NotionEditor } from "@/components/notion-editor";
 import { NotionHomepage } from "@/components/notion-homepage";
 import { NewPageDialog } from "@/components/new-page-dialog";
+import { ChatPanel } from "@/components/chat-panel";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ShareDialog } from "@/components/share-dialog";
 
@@ -33,6 +34,7 @@ export function Home() {
   const [shareLink, setShareLink] = useState<string | null>(null);
   const [shareError, setShareError] = useState<string | null>(null);
   const [shareLoading, setShareLoading] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
 
   const handleSelectNote = useCallback(
     async (id: number) => {
@@ -162,6 +164,7 @@ export function Home() {
             isFavorited={activeNote?.isFavorite}
             onShareNote={handleShare}
             shareLoading={shareLoading}
+            onOpenChat={() => setChatOpen(true)}
           />
 
           <main className="flex-1 overflow-y-auto">
@@ -198,6 +201,8 @@ export function Home() {
           error={shareError}
           onUnshare={handleUnshare}
         />
+
+        <ChatPanel open={chatOpen} onClose={() => setChatOpen(false)} />
       </div>
     </TooltipProvider>
   );
