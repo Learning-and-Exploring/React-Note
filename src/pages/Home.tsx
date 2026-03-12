@@ -8,6 +8,8 @@ import { NotionHomepage } from "@/components/notion-homepage";
 import { ChatPanel } from "@/components/chat-panel";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ShareDialog } from "@/components/share-dialog";
+import homeIllustration from "@/assets/home.png";
+import favoritesIllustration from "@/assets/favorith.png";
 
 
 export function Home() {
@@ -160,6 +162,10 @@ export function Home() {
     void handleSelectNote(routeNoteId);
   }, [routeNoteId, clearSelection, handleSelectNote]);
 
+  const handleGoToNotes = () => {
+    handleSelectSection("notes");
+  };
+
   const workspaceName = "My Workspace";
 
   return (
@@ -208,6 +214,52 @@ export function Home() {
                 noteCount={notes.length}
                 onNewPage={handleNewPage}
               />
+            ) : activeSection === "favorites" ? (
+              <div className="flex h-full items-start justify-center px-6 pb-12">
+                <div className="relative w-full overflow-hidden rounded-3xl bg-white/85 p-8 shadow-[0_20px_45px_rgba(0,0,0,0.08)] ring-1 ring-white/70 backdrop-blur sm:p-12 dark:bg-zinc-900/85 dark:ring-white/10">
+                  <div className="absolute inset-0 bg-gradient-to-br from-amber-50 via-white/60 to-orange-50 dark:from-amber-950/35 dark:via-zinc-900/40 dark:to-orange-950/20 pointer-events-none" />
+                  <div className="relative grid gap-10 sm:grid-cols-[0.95fr_1.05fr] items-center">
+                    <div className="space-y-4 text-left">
+                      <p className="inline-flex items-center gap-2 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-amber-700 shadow-sm dark:bg-amber-900/40 dark:text-amber-100">
+                        Favorites
+                      </p>
+                      <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+                        Star the notes you love to keep them one tap away.
+                      </h1>
+                      <p className="text-base leading-relaxed text-zinc-600 dark:text-zinc-300">
+                        Pin important docs, lists, and ideas. Favorites collect here automatically so you can jump back in
+                        fast—no searching required.
+                      </p>
+                      <div className="flex flex-wrap gap-3 text-sm text-zinc-500 dark:text-zinc-400">
+                        <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1 ring-1 ring-amber-100 shadow-sm dark:bg-white/5 dark:ring-white/10">
+                          ⭐ Quick access
+                        </span>
+                        <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1 ring-1 ring-amber-100 shadow-sm dark:bg-white/5 dark:ring-white/10">
+                          Sorted for you
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-3">
+                        <button
+                          onClick={handleGoToNotes}
+                          className="inline-flex items-center gap-2 rounded-2xl bg-amber-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-amber-600"
+                        >
+                          Go to Notes
+                        </button>
+                        <span className="text-sm text-zinc-500 dark:text-zinc-400">
+                          Open any note and tap the star to pin it here.
+                        </span>
+                      </div>
+                    </div>
+                    <div className="relative">
+                      <img
+                        src={favoritesIllustration}
+                        alt="Favorites illustration"
+                        className="w-full max-w-xl mx-auto drop-shadow-[0_18px_45px_rgba(0,0,0,0.1)] rounded-2xl"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
             ) : (
               <div className="flex h-full items-start justify-center px-6 pb-12">
                 <div className="relative w-full overflow-hidden rounded-3xl bg-white/85 p-8 shadow-[0_20px_45px_rgba(0,0,0,0.08)] ring-1 ring-white/70 backdrop-blur sm:p-12 dark:bg-zinc-900/85 dark:ring-white/10">
@@ -240,21 +292,11 @@ export function Home() {
                       </div>
                     </div>
                     <div className="relative">
-                      <div className="rounded-2xl bg-white shadow-[0_12px_30px_rgba(0,0,0,0.08)] ring-1 ring-zinc-100 overflow-hidden dark:bg-zinc-950 dark:ring-white/10">
-                        <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-indigo-500 to-blue-500 text-white">
-                          <span className="text-sm font-semibold">Note Preview</span>
-                          <span className="text-xs text-white/80">View-only</span>
-                        </div>
-                        <div className="p-5 space-y-3 text-left">
-                          <div className="h-4 w-2/3 rounded-full bg-zinc-200 dark:bg-zinc-800" />
-                          <div className="h-4 w-1/2 rounded-full bg-zinc-200 dark:bg-zinc-800" />
-                          <div className="space-y-2 pt-1">
-                            <div className="h-3 w-full rounded-full bg-zinc-100 dark:bg-zinc-900" />
-                            <div className="h-3 w-5/6 rounded-full bg-zinc-100 dark:bg-zinc-900" />
-                            <div className="h-3 w-4/6 rounded-full bg-zinc-100 dark:bg-zinc-900" />
-                          </div>
-                        </div>
-                      </div>
+                      <img
+                        src={homeIllustration}
+                        alt="Home illustration"
+                        className="w-full max-w-xl mx-auto drop-shadow-[0_18px_45px_rgba(0,0,0,0.1)] rounded-2xl"
+                      />
                     </div>
                   </div>
                 </div>
