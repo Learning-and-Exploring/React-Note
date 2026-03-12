@@ -165,8 +165,6 @@ export function Home() {
     handleSelectSection("notes");
   };
 
-  const workspaceName = "My Workspace";
-
   return (
     <div className="flex h-screen overflow-hidden bg-[#f2f2f7] dark:bg-zinc-950">
         {/* Sidebar */}
@@ -181,14 +179,12 @@ export function Home() {
           onNewPage={handleNewPage}
           onLogout={() => void logout()}
           onOpenChat={() => setChatOpen(true)}
-          workspaceName={workspaceName}
         />
 
         {/* Main */}
         <div className="flex flex-col flex-1 min-w-0">
           <NotionTopbar
             activeNote={activeNote}
-            workspaceName={workspaceName}
             isSidebarOpen={sidebarOpen}
             onToggleSidebar={() => setSidebarOpen((v) => !v)}
             onDeleteNote={(id) => void handleDelete(id)}

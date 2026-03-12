@@ -57,7 +57,6 @@ type NotionTopbarProps = {
 export function NotionTopbar({
     activeNote,
     workspaceName,
-    isSidebarOpen,
     onToggleSidebar,
     onDeleteNote,
     onToggleFavorite,
@@ -79,22 +78,7 @@ export function NotionTopbar({
             <header className="mx-3 mt-3 mb-3 flex h-12 items-center justify-between rounded-2xl bg-white/80 px-4 shadow-[0_8px_20px_rgba(0,0,0,0.08)] ring-1 ring-white/70 backdrop-blur sm:mx-4 sm:mt-4 dark:bg-zinc-900/70 dark:ring-white/10">
                 {/* Left: Sidebar toggle + Breadcrumb */}
                 <div className="flex items-center gap-2 min-w-0">
-                    {!isSidebarOpen && (
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button
-                                    variant="ghost"
-                                    size="icon-sm"
-                                    className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
-                                    onClick={onToggleSidebar}
-                                >
-                                    <Menu className="w-4 h-4" />
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent side="bottom">Open sidebar</TooltipContent>
-                        </Tooltip>
-                    )}
-
+                    
                     {/* Breadcrumb */}
                     <nav className="flex items-center gap-1 text-xs text-zinc-500 min-w-0 dark:text-zinc-400">
                         <span className="hover:text-zinc-900 cursor-default transition-colors dark:hover:text-zinc-100">
