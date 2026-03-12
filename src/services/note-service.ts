@@ -82,6 +82,25 @@ function normalizeNotes(raw: unknown): Note[] {
   return [];
 }
 
+function buildFrontendShareUrl(apiShareUrl: string) {
+  if (!apiShareUrl) return "";
+
+  const tokenMatch = apiShareUrl.match(/\/([^/?#]+)\/?$/);
+  const token = tokenMatch?.[1];
+  if (!token) return apiShareUrl;
+
+  const base =
+    typeof import.meta !== "undefined" && typeof import.meta.env?.BASE_URL === "string"
+      ? import.meta.env.BASE_URL
+      : "/";
+
+  const normalizedBase = base.endsWith("/") ? base.slice(0, -1) : base;
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const path = `${normalizedBase}/shared/${token}`;
+
+  return origin ? `${origin}${path}` : path;
+}
+
 export const noteService = {
   async create(payload: CreateNotePayload, token: string): Promise<Note> {
     try {
@@ -179,7 +198,8 @@ export const noteService = {
         },
       );
 
-      return { shareUrl: String(response.data?.shareUrl ?? "") };
+      const apiShareUrl = String(response.data?.shareUrl ?? "");
+      return { shareUrl: buildFrontendShareUrl(apiShareUrl) };
     } catch (error) {
       throw new Error(extractMessage(error));
     }
