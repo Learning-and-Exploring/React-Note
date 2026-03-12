@@ -209,8 +209,8 @@ export function Home() {
                 onNewPage={handleNewPage}
               />
             ) : (
-              <div className="flex h-full items-center justify-center px-4 pb-10">
-                <div className="relative w-full max-w-5xl overflow-hidden rounded-3xl bg-white/85 p-8 shadow-[0_20px_45px_rgba(0,0,0,0.08)] ring-1 ring-white/70 backdrop-blur sm:p-10 dark:bg-zinc-900/85 dark:ring-white/10">
+              <div className="flex h-full items-start justify-center px-6 pb-12">
+                <div className="relative w-full overflow-hidden rounded-3xl bg-white/85 p-8 shadow-[0_20px_45px_rgba(0,0,0,0.08)] ring-1 ring-white/70 backdrop-blur sm:p-12 dark:bg-zinc-900/85 dark:ring-white/10">
                   <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-white/60 to-blue-50 dark:from-indigo-950/40 dark:via-zinc-900/40 dark:to-blue-950/20 pointer-events-none" />
                   <div className="relative grid gap-8 sm:grid-cols-[1.1fr_0.9fr] items-center">
                     <div className="space-y-4 text-left">
@@ -224,16 +224,19 @@ export function Home() {
                         Capture ideas with a clean editor, keep favorites close, and share view-only links when you need to
                         loop others in. Everything stays in sync, so you can pick up right where you left off.
                       </p>
-                      <div className="flex flex-wrap items-center gap-3 text-sm text-zinc-500 dark:text-zinc-400">
-                        <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1 ring-1 ring-zinc-200 shadow-sm dark:bg-white/5 dark:ring-white/10">
-                          Instant save
-                        </span>
-                        <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1 ring-1 ring-zinc-200 shadow-sm dark:bg-white/5 dark:ring-white/10">
-                          Share links
-                        </span>
-                        <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1 ring-1 ring-zinc-200 shadow-sm dark:bg-white/5 dark:ring-white/10">
-                          Favorites
-                        </span>
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        <div className="rounded-2xl bg-white/90 p-4 ring-1 ring-zinc-100 shadow-sm dark:bg-white/5 dark:ring-white/10">
+                          <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Shareable links</p>
+                          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                            Create view-only links for any note in one click.
+                          </p>
+                        </div>
+                        <div className="rounded-2xl bg-white/90 p-4 ring-1 ring-zinc-100 shadow-sm dark:bg-white/5 dark:ring-white/10">
+                          <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Stay organized</p>
+                          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                            Favorites and quick search keep important pages close.
+                          </p>
+                        </div>
                       </div>
                     </div>
                     <div className="relative">
