@@ -19,6 +19,7 @@ export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const editorRef = useRef<HTMLDivElement>(null);
     const activePreRef = useRef<HTMLPreElement | null>(null);
+    const slashMenuRef = useRef<HTMLDivElement | null>(null);
     const [copyAnchor, setCopyAnchor] = useState<{
         top: number;
         left: number;
@@ -182,6 +183,19 @@ export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
         fn();
         closeSlashMenu();
     };
+
+    // Close slash menu when clicking anywhere outside the menu itself
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (!slashMenu.open) return;
+            const target = event.target as Node | null;
+            if (slashMenuRef.current && slashMenuRef.current.contains(target)) return;
+            closeSlashMenu();
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [slashMenu.open]);
 
     const applyCommand = (command: string, value?: string) => {
         const el = editorRef.current;
@@ -349,11 +363,15 @@ export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
                                     </button>
                                 )}
 
-                                {slashMenu.open && (
-                                    <div className="notion-slash-menu" style={{ top: slashMenu.top, left: slashMenu.left }}>
-                                        <button type="button" onClick={() => applySlashCommand(() => applyBlock("p"))}>
-                                            Text
-                                        </button>
+                            {slashMenu.open && (
+                                <div
+                                    ref={slashMenuRef}
+                                    className="notion-slash-menu"
+                                    style={{ top: slashMenu.top, left: slashMenu.left }}
+                                >
+                                    <button type="button" onClick={() => applySlashCommand(() => applyBlock("p"))}>
+                                        Text
+                                    </button>
                                         <button type="button" onClick={() => applySlashCommand(() => applyBlock("h1"))}>
                                             Heading 1
                                         </button>
