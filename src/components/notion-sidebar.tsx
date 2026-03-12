@@ -232,7 +232,7 @@ import {
     Home,
     FileText,
     Star,
-    Plus,
+    CircleFadingPlus,
     ChevronLeft,
     ChevronRight,
     StickyNote,
@@ -465,7 +465,7 @@ export function NotionSidebar({
                                     )}
                                     onClick={onNewPage}
                                 >
-                                    <Plus className="w-4 h-4 shrink-0" />
+                                    <CircleFadingPlus className="w-4 h-4 shrink-0" />
                                     {isOpen && "New Page"}
                                 </Button>
                             </TooltipTrigger>
