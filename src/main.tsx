@@ -5,12 +5,15 @@ import App from "./App";
 import { NotesProvider } from "./context/notes-context";
 import { Provider } from "react-redux";
 import { store } from "./store";
+import { TooltipProvider } from "./components/ui/tooltip";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Provider store={store}>
       <NotesProvider>
-        <App />
+        <TooltipProvider delayDuration={200} skipDelayDuration={300}>
+          <App />
+        </TooltipProvider>
       </NotesProvider>
     </Provider>
   </StrictMode>

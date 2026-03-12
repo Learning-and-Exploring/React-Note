@@ -6,7 +6,6 @@ import { NotionTopbar } from "@/components/notion-topbar";
 import { NotionEditor } from "@/components/notion-editor";
 import { NotionHomepage } from "@/components/notion-homepage";
 import { ChatPanel } from "@/components/chat-panel";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { ShareDialog } from "@/components/share-dialog";
 import homeIllustration from "@/assets/home.png";
 import favoritesIllustration from "@/assets/favorith.png";
@@ -169,8 +168,7 @@ export function Home() {
   const workspaceName = "My Workspace";
 
   return (
-    <TooltipProvider delayDuration={300}>
-      <div className="flex h-screen overflow-hidden bg-[#f2f2f7] dark:bg-zinc-950">
+    <div className="flex h-screen overflow-hidden bg-[#f2f2f7] dark:bg-zinc-950">
         {/* Sidebar */}
         <NotionSidebar
           notes={visibleNotes}
@@ -367,6 +365,5 @@ export function Home() {
 
         <ChatPanel open={chatOpen} onClose={() => setChatOpen(false)} />
       </div>
-    </TooltipProvider>
   );
 }
