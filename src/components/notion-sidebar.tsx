@@ -10,8 +10,19 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import type { Note } from "@/services/note-service";
+import { useState } from "react";
 
 export type NavSection = "home" | "notes" | "favorites";
 
@@ -46,6 +57,8 @@ export function NotionSidebar({
     onLogout,
     workspaceName,
 }: NotionSidebarProps) {
+    const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+
     return (
         <>
             {/* Sidebar panel */}
@@ -153,7 +166,7 @@ export function NotionSidebar({
                             <Button
                                 variant="ghost"
                                 className="w-full justify-start gap-2 rounded-2xl text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
-                                onClick={onLogout}
+                                onClick={() => setLogoutDialogOpen(true)}
                             >
                                 <LogOut className="w-4 h-4" />
                                 Logout
@@ -162,6 +175,30 @@ export function NotionSidebar({
                     </div>
                 </div>
             </aside>
+
+            {/* Logout confirmation dialog */}
+            <AlertDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Sign out?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            You will need to sign in again to access your notes.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Stay</AlertDialogCancel>
+                        <AlertDialogAction
+                            className="bg-red-500 hover:bg-red-600"
+                            onClick={() => {
+                                setLogoutDialogOpen(false);
+                                onLogout?.();
+                            }}
+                        >
+                            Logout
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
 
             {/* Collapsed toggle button removed; use topbar control */}
         </>
