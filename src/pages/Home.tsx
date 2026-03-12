@@ -58,6 +58,10 @@ export function Home() {
     setActiveNoteId(null);
     clearSelection();
     navigate("/");
+
+    if (section === "notes" && notes.length > 0) {
+      void handleSelectNote(notes[0].id);
+    }
   };
 
   const handleNewPage = async () => {
@@ -148,6 +152,13 @@ export function Home() {
     setShareLink(null);
     setShareError(null);
   }, [activeNote?.id]);
+
+  // When switching to Notes with existing notes and nothing selected, auto-open the first note
+  useEffect(() => {
+    if (activeSection === "notes" && !activeNote && notes.length > 0) {
+      void handleSelectNote(notes[0].id);
+    }
+  }, [activeSection, activeNote, notes, handleSelectNote]);
 
   // Sync URL param to active note selection
   useEffect(() => {
