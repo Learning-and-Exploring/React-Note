@@ -20,14 +20,14 @@ export default defineConfig([
       globals: globals.browser,
     },
     rules: {
-      // ✅ Disable React Compiler rules (added in react-hooks v5)
+      // Disable React Compiler lint rules — not using React Compiler transform
       'react-hooks/react-compiler': 'off',
 
-      // ✅ Keep as warn instead of error if you want
-      'react-hooks/exhaustive-deps': 'warn',
-
-      // ✅ Disable unused vars errors → warnings
+      // Downgrade unused vars from error to warning
       '@typescript-eslint/no-unused-vars': 'warn',
+
+      // Keep exhaustive-deps as warning only
+      'react-hooks/exhaustive-deps': 'warn',
     },
   },
 ])
