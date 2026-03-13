@@ -42,7 +42,7 @@ function AppRoutes() {
 function App() {
   return (
     <ThemeProvider>
-      <BrowserRouter>
+      <BrowserRouter basename="/React-Note/">
         <AppRoutes />
       </BrowserRouter>
     </ThemeProvider>
