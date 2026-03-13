@@ -9,7 +9,6 @@ import {
     Moon,
     Trash2,
     Clock,
-    Menu,
     MessageCircle,
     Plus,
 } from "lucide-react";
@@ -57,7 +56,6 @@ type NotionTopbarProps = {
 export function NotionTopbar({
     activeNote,
     workspaceName,
-    onToggleSidebar,
     onDeleteNote,
     onToggleFavorite,
     isFavorited,

@@ -16,7 +16,6 @@ export function Home() {
   const { id: routeId } = useParams<{ id?: string }>();
   const {
     notes,
-    loading,
     selectedNote,
     createNote,
     updateNote,
@@ -74,15 +73,15 @@ export function Home() {
     }
   };
 
-  const handleCreate = async (payload: { title: string; body: string }) => {
-    const created = await createNote({
-      title: payload.title || "Untitled",
-      body: payload.body ?? "",
-    });
-    if (created) {
-      await handleSelectNote(created.id);
-    }
-  };
+  // const handleCreate = async (payload: { title: string; body: string }) => {
+  //   const created = await createNote({
+  //     title: payload.title || "Untitled",
+  //     body: payload.body ?? "",
+  //   });
+  //   if (created) {
+  //     await handleSelectNote(created.id);
+  //   }
+  // };
 
   const handleDelete = async (id: number) => {
     await deleteNote(id);

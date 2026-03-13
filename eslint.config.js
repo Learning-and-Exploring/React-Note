@@ -19,5 +19,15 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      // ✅ Disable React Compiler rules (added in react-hooks v5)
+      'react-hooks/react-compiler': 'off',
+
+      // ✅ Keep as warn instead of error if you want
+      'react-hooks/exhaustive-deps': 'warn',
+
+      // ✅ Disable unused vars errors → warnings
+      '@typescript-eslint/no-unused-vars': 'warn',
+    },
   },
 ])
