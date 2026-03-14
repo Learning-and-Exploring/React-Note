@@ -72,7 +72,7 @@ export function NotionHomepage({ workspaceName, noteCount, onNewPage }: NotionHo
             </div>
 
             {/* Features strip */}
-            <div className="mx-auto w-full grid gap-4 sm:grid-cols-3 pb-4">
+            <div className="mx-auto w-full grid gap-4 sm:grid-cols-3">
                 <div className="flex items-center gap-3 p-4 rounded-2xl bg-white/85 shadow-sm ring-1 ring-white/70 backdrop-blur dark:bg-zinc-900/80 dark:ring-white/10">
                     <div className="w-9 h-9 rounded-2xl bg-amber-50 flex items-center justify-center shrink-0 dark:bg-amber-900/30">
                         <Star className="w-4 h-4 text-amber-500 dark:text-amber-400" />

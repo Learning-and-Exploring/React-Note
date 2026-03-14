@@ -7,7 +7,8 @@ import { NotionEditor } from "@/components/notion-editor";
 import { NotionHomepage } from "@/components/notion-homepage";
 import { ChatPanel } from "@/components/chat-panel";
 import { ShareDialog } from "@/components/share-dialog";
-import homeIllustration from "@/assets/home.png";
+import homeIllustration1 from "@/assets/home1.png";
+import homeIllustration2 from "@/assets/home2.png";
 import favoritesIllustration from "@/assets/favorith.png";
 
 
@@ -298,11 +299,18 @@ export function Home() {
                 <div className="relative w-full overflow-hidden rounded-3xl bg-white/85 p-8 shadow-[0_20px_45px_rgba(0,0,0,0.08)] ring-1 ring-white/70 backdrop-blur sm:p-12 dark:bg-zinc-900/85 dark:ring-white/10">
                   <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-white/60 to-blue-50 dark:from-indigo-950/40 dark:via-zinc-900/40 dark:to-blue-950/20 pointer-events-none" />
                   <div className="relative flex flex-col gap-8">
-                    <img
-                      src={homeIllustration}
-                      alt="Home illustration"
-                      className="w-full max-h-72 object-contain rounded-2xl drop-shadow-[0_18px_45px_rgba(0,0,0,0.1)]"
-                    />
+                    <div className="grid grid-cols-2 gap-4">
+                      <img
+                        src={homeIllustration1}
+                        alt="Home illustration"
+                        className="w-full max-h-72 object-cover rounded-2xl drop-shadow-[0_18px_45px_rgba(0,0,0,0.1)] border"
+                      />
+                      <img
+                        src={homeIllustration2}
+                        alt="Home illustration 2"
+                        className="w-full max-h-72 object-cover rounded-2xl drop-shadow-[0_18px_45px_rgba(0,0,0,0.1)] border"
+                      />
+                    </div>
                     <div className="space-y-4 text-left">
                       <p className="inline-flex items-center gap-2 rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-indigo-700 shadow-sm dark:bg-indigo-900/40 dark:text-indigo-100">
                         About Us
