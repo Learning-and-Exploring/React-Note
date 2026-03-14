@@ -5,6 +5,9 @@ import type { Note } from "@/services/note-service";
 
 type SaveStatus = "idle" | "saving" | "saved";
 
+const TITLE_MAX_LENGTH = 50;
+const TITLE_LIMIT_MESSAGE = "Title is limited to 50 characters";
+
 type NotionEditorProps = {
     note: Note;
     onUpdate: (id: number, payload: { title?: string; body?: string }) => Promise<void>;
@@ -71,8 +74,9 @@ export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
     );
 
     const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setTitle(e.target.value);
-        scheduleSave(e.target.value, bodyHtml);
+        const value = e.target.value.slice(0, TITLE_MAX_LENGTH);
+        setTitle(value);
+        scheduleSave(value, bodyHtml);
     };
 
     const handleBodyInput = () => {
@@ -233,18 +237,27 @@ export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
                             </div>
                         )}
                         {/* Title */}
-                        <input
-                            className={cn(
-                                "w-full bg-transparent text-3xl sm:text-4xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100",
-                                "placeholder:text-zinc-300 dark:placeholder:text-zinc-600",
-                                "outline-none border-none resize-none leading-tight",
-                                "caret-zinc-900 dark:caret-zinc-100"
+                        <div className="space-y-1">
+                            <input
+                                className={cn(
+                                    "w-full bg-transparent text-3xl sm:text-4xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100",
+                                    "placeholder:text-zinc-300 dark:placeholder:text-zinc-600",
+                                    "outline-none border-none resize-none leading-tight",
+                                    "caret-zinc-900 dark:caret-zinc-100"
+                                )}
+                                value={title}
+                                onChange={handleTitleChange}
+                                placeholder="Untitled"
+                                spellCheck={false}
+                                maxLength={TITLE_MAX_LENGTH}
+                                aria-describedby={title.length >= TITLE_MAX_LENGTH ? "title-limit-message" : undefined}
+                            />
+                            {title.length >= TITLE_MAX_LENGTH && (
+                                <p id="title-limit-message" className="text-xs text-amber-600 dark:text-amber-400" role="alert">
+                                    {TITLE_LIMIT_MESSAGE}
+                                </p>
                             )}
-                            value={title}
-                            onChange={handleTitleChange}
-                            placeholder="Untitled"
-                            spellCheck={false}
-                        />
+                        </div>
 
                         {/* Divider hint */}
                         <div className="flex items-center gap-3 mt-4 group">

@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
+
+const TITLE_MAX_LENGTH = 50;
+const TITLE_LIMIT_MESSAGE = "Title is limited to 50 characters";
 import {
     Dialog,
     DialogContent,
@@ -24,8 +27,12 @@ export function NewPageDialog({ open, onOpenChange, onCreate, loading }: NewPage
     const [body, setBody] = useState("");
 
     const handleCreate = async () => {
-        if (!title.trim()) return;
-        await onCreate({ title: title.trim(), body: body.trim() });
+        const trimmed = title.trim();
+        if (!trimmed) return;
+        if (trimmed.length > TITLE_MAX_LENGTH) {
+            return; // UI caps input; this is a safeguard
+        }
+        await onCreate({ title: trimmed, body: body.trim() });
         setTitle("");
         setBody("");
         onOpenChange(false);
@@ -51,17 +58,24 @@ export function NewPageDialog({ open, onOpenChange, onCreate, loading }: NewPage
                 </DialogHeader>
 
                 <div className="space-y-4 py-1">
-                    <div>
+                    <div className="space-y-1">
                         <label className="text-xs font-semibold text-zinc-500 mb-2 block dark:text-zinc-400">
                             Title <span className="text-red-500">*</span>
                         </label>
                         <Input
                             placeholder="Untitled"
                             value={title}
-                            onChange={(e) => setTitle(e.target.value)}
+                            onChange={(e) => setTitle(e.target.value.slice(0, TITLE_MAX_LENGTH))}
                             autoFocus
                             className="text-sm"
+                            maxLength={TITLE_MAX_LENGTH}
+                            aria-describedby={title.length >= TITLE_MAX_LENGTH ? "new-page-title-limit" : undefined}
                         />
+                        {title.length >= TITLE_MAX_LENGTH && (
+                            <p id="new-page-title-limit" className="text-xs text-amber-600 dark:text-amber-400" role="alert">
+                                {TITLE_LIMIT_MESSAGE}
+                            </p>
+                        )}
                     </div>
                     <div>
                         <label className="text-xs font-semibold text-zinc-500 mb-2 block dark:text-zinc-400">
