@@ -40,6 +40,23 @@ export type UpdateNotePayload = Partial<CreateNotePayload>;
 
 export type ShareLink = { shareUrl: string };
 
+export type NotesPageMeta = {
+  totalCount?: number;
+  pageCount?: number;
+  currentPage?: number;
+  perPage?: number;
+  hasNextPage?: boolean;
+  hasPreviousPage?: boolean;
+  // Some pagination helpers use different field names; keep them optional
+  page?: number;
+  totalPages?: number;
+};
+
+export type NotesPage = {
+  data: Note[];
+  meta: NotesPageMeta | null;
+};
+
 const api = axios.create({
   baseURL: BASE_URL,
   headers: {
@@ -119,13 +136,25 @@ export const noteService = {
     }
   },
 
-  async listMyNotes(token: string): Promise<Note[]> {
+  async listMyNotes(
+    token: string,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<NotesPage> {
     try {
       const response = await api.get("/notes/one-user", {
         headers: authHeaders(token),
+        params: { page, limit },
       });
 
-      return normalizeNotes(response.data);
+      const raw = response.data ?? {};
+      const notes = normalizeNotes(raw);
+      const meta = (raw as Record<string, unknown>).meta as NotesPageMeta | undefined;
+
+      return {
+        data: notes,
+        meta: meta ?? null,
+      };
     } catch (error) {
       throw new Error(extractMessage(error));
     }

@@ -12,6 +12,7 @@ import {
   type CreateNotePayload,
   type Note,
   type UpdateNotePayload,
+  type NotesPageMeta,
 } from "../services/note-service";
 import { authService } from "../services/auth-service";
 import {
@@ -43,6 +44,9 @@ type NotesContextValue = {
   loading: boolean;
   error: string | null;
   fetchNotes: () => Promise<void>;
+  fetchNextNotesPage: () => Promise<void>;
+  hasMoreNotes: boolean;
+  loadingMoreNotes: boolean;
   fetchNoteById: (id: number) => Promise<void>;
   createNote: (payload: CreateNotePayload) => Promise<Note | null>;
   updateNote: (id: number, payload: UpdateNotePayload) => Promise<void>;
@@ -66,6 +70,27 @@ export function NotesProvider({ children }: { children: ReactNode }) {
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [notesMeta, setNotesMeta] = useState<NotesPageMeta | null>(null);
+  const [hasMoreNotes, setHasMoreNotes] = useState(true);
+  const [loadingMoreNotes, setLoadingMoreNotes] = useState(false);
+
+  const getCurrentPageFromMeta = (meta: NotesPageMeta | null | undefined) => {
+    if (!meta) return 1;
+    return (
+      meta.currentPage ??
+      meta.page ??
+      1
+    );
+  };
+
+  const getPageCountFromMeta = (meta: NotesPageMeta | null | undefined) => {
+    if (!meta) return 1;
+    return (
+      meta.pageCount ??
+      meta.totalPages ??
+      1
+    );
+  };
 
   const setToken = useCallback((nextToken: string) => {
     if (nextToken) {
@@ -133,14 +158,70 @@ export function NotesProvider({ children }: { children: ReactNode }) {
   const fetchNotes = useCallback(async () => {
     if (!token) {
       setNotes([]);
+      setNotesMeta(null);
+      setHasMoreNotes(true);
       return;
     }
 
     await runWithState(async () => {
-      const data = await noteService.listMyNotes(token);
+      const { data, meta } = await noteService.listMyNotes(token, 1);
       setNotes(data);
+      setNotesMeta(meta ?? null);
+
+      if (meta) {
+        const hasNext =
+          typeof meta.hasNextPage === "boolean"
+            ? meta.hasNextPage
+            : getCurrentPageFromMeta(meta) < getPageCountFromMeta(meta);
+        setHasMoreNotes(hasNext);
+      } else {
+        setHasMoreNotes(false);
+      }
     });
   }, [token, runWithState]);
+
+  const fetchNextNotesPage = useCallback(async () => {
+    if (!token) return;
+    if (loadingMoreNotes) return;
+    if (!hasMoreNotes) return;
+
+    setLoadingMoreNotes(true);
+    setError(null);
+
+    try {
+      const currentPage = getCurrentPageFromMeta(notesMeta);
+      const nextPage = currentPage + 1;
+      const { data, meta } = await noteService.listMyNotes(token, nextPage);
+
+      setNotes((current) => {
+        const existingIds = new Set(current.map((n) => n.id));
+        const merged = [...current];
+        for (const note of data) {
+          if (!existingIds.has(note.id)) {
+            merged.push(note);
+          }
+        }
+        return merged;
+      });
+
+      setNotesMeta(meta ?? null);
+
+      if (meta) {
+        const hasNext =
+          typeof meta.hasNextPage === "boolean"
+            ? meta.hasNextPage
+            : getCurrentPageFromMeta(meta) < getPageCountFromMeta(meta);
+        setHasMoreNotes(hasNext);
+      } else {
+        setHasMoreNotes(false);
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Unexpected error";
+      setError(message);
+    } finally {
+      setLoadingMoreNotes(false);
+    }
+  }, [token, notesMeta, hasMoreNotes, loadingMoreNotes]);
 
   const fetchNoteById = useCallback(
     async (id: number) => {
@@ -288,6 +369,9 @@ export function NotesProvider({ children }: { children: ReactNode }) {
       loading,
       error,
       fetchNotes,
+      fetchNextNotesPage,
+      hasMoreNotes,
+      loadingMoreNotes,
       fetchNoteById,
       createNote,
       updateNote,
@@ -308,6 +392,9 @@ export function NotesProvider({ children }: { children: ReactNode }) {
       loading,
       error,
       fetchNotes,
+      fetchNextNotesPage,
+      hasMoreNotes,
+      loadingMoreNotes,
       fetchNoteById,
       createNote,
       updateNote,

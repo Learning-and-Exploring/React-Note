@@ -27,6 +27,9 @@ export function Home() {
     shareNote,
     unshareNote,
     logout,
+    fetchNextNotesPage,
+    hasMoreNotes,
+    loadingMoreNotes,
   } = useNotes();
 
   // Temporary workspace label until user/workspace data is available
@@ -191,6 +194,9 @@ export function Home() {
           onSelectNote={(id) => void handleSelectNote(id)}
           onSelectSection={handleSelectSection}
           onNewPage={handleNewPage}
+          onLoadMoreNotes={() => void fetchNextNotesPage()}
+          hasMoreNotes={hasMoreNotes}
+          loadingMoreNotes={loadingMoreNotes}
           onLogout={() => void logout()}
           onOpenChat={() => setChatOpen(true)}
           workspaceName={workspaceName}
