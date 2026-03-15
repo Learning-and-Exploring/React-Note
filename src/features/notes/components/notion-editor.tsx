@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Check, Loader2, ImageIcon, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Note } from "@/services/note-service";
-import { noteService } from "@/services/note-service";
+import type { Note } from "@features/notes/services/notes-service";
 import { useSelector } from "react-redux";
-import { selectAuthToken } from "@/store";
+import { noteService } from "@features/notes/services/notes-service";
+import { selectAuthToken } from "@core/store";
 
 type SaveStatus = "idle" | "saving" | "saved";
 

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Eye, EyeOff, NotebookPen } from "lucide-react";
-import { Button } from "../components/button";
-import { Input } from "../components/ui/input";
-import { useNotes } from "../hooks/use-notes";
+import { Button } from '@/components/button'
+import { Input } from "@/components/ui/input";
+import { useNotes } from "@features/notes/hooks/use-notes";
 
 type AuthMode = "login" | "register";
 

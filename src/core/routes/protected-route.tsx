@@ -1,9 +1,9 @@
 import { Navigate, useLocation } from "react-router-dom";
-import { type ReactElement } from "react";          // ✅ add this
-import { useNotes } from "@/hooks/use-notes";
+import { type ReactElement } from "react";        
+import { useNotes } from "@/features/notes/hooks/use-notes";
 
 type ProtectedRouteProps = {
-  children: ReactElement;                            // ✅ was JSX.Element
+  children: ReactElement;                       
 };
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {

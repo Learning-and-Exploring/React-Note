@@ -1,5 +1,5 @@
 import axios from "axios";
-import { extractMessage } from "./utils";
+import { extractMessage } from "../utils/notes-utils";
 
 function resolveBaseUrl() {
   const envUrl =
@@ -33,7 +33,7 @@ export type Block = {
 export type Note = {
   id: number;
   title: string;
-  body: string;         // HTML string — used by contentEditable editor
+  body: string; // HTML string — used by contentEditable editor
   isFavorite: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -41,7 +41,7 @@ export type Note = {
 
 export type CreateNotePayload = {
   title: string;
-  body: string;         // editor sends HTML string
+  body: string; // editor sends HTML string
   isFavorite?: boolean;
 };
 
@@ -157,9 +157,10 @@ function htmlToBlocks(html: string): Block[] {
 function blocksToHtml(blocks: Block[]): string {
   if (!Array.isArray(blocks) || blocks.length === 0) return "";
 
-  return blocks.map((block) => {
-    if (block.type === "image") {
-      return `<img
+  return blocks
+    .map((block) => {
+      if (block.type === "image") {
+        return `<img
         src="${block.url || ""}"
         data-file-id="${block.fileId || ""}"
         data-file-path="${block.filePath || ""}"
@@ -167,10 +168,11 @@ function blocksToHtml(blocks: Block[]): string {
         class="notion-image"
         style="max-width:100%;border-radius:8px;margin:8px 0;display:block;"
       />`;
-    }
-    const tag = TYPE_TO_TAG[block.type] || "p";
-    return `<${tag}>${block.content || ""}</${tag}>`;
-  }).join("");
+      }
+      const tag = TYPE_TO_TAG[block.type] || "p";
+      return `<${tag}>${block.content || ""}</${tag}>`;
+    })
+    .join("");
 }
 
 // ─── Normalizers ──────────────────────────────────────────────────────────────
@@ -186,11 +188,14 @@ function normalizeNote(raw: unknown): Note {
     id: Number(record.id ?? 0),
     title: String(record.title ?? ""),
     body: bodyHtml,
-    isFavorite: typeof record.isFavorite === "boolean"
-      ? record.isFavorite
-      : Boolean(record.isFavorite),
-    createdAt: typeof record.createdAt === "string" ? record.createdAt : undefined,
-    updatedAt: typeof record.updatedAt === "string" ? record.updatedAt : undefined,
+    isFavorite:
+      typeof record.isFavorite === "boolean"
+        ? record.isFavorite
+        : Boolean(record.isFavorite),
+    createdAt:
+      typeof record.createdAt === "string" ? record.createdAt : undefined,
+    updatedAt:
+      typeof record.updatedAt === "string" ? record.updatedAt : undefined,
   };
 }
 
@@ -210,7 +215,8 @@ function buildFrontendShareUrl(apiShareUrl: string) {
   const token = tokenMatch?.[1];
   if (!token) return apiShareUrl;
   const base =
-    typeof import.meta !== "undefined" && typeof import.meta.env?.BASE_URL === "string"
+    typeof import.meta !== "undefined" &&
+    typeof import.meta.env?.BASE_URL === "string"
       ? import.meta.env.BASE_URL
       : "/";
   const normalizedBase = base.endsWith("/") ? base.slice(0, -1) : base;
@@ -228,10 +234,10 @@ export const noteService = {
         "/notes",
         {
           title: payload.title,
-          body: htmlToBlocks(payload.body),   // ✅ HTML → Block[]
+          body: htmlToBlocks(payload.body), // ✅ HTML → Block[]
           isFavorite: Boolean(payload.isFavorite),
         },
-        { headers: authHeaders(token) }
+        { headers: authHeaders(token) },
       );
       return normalizeNote(response.data?.data ?? response.data);
     } catch (error) {
@@ -248,7 +254,7 @@ export const noteService = {
       const raw = response.data ?? {};
       return {
         data: normalizeNotes(raw),
-        meta: (raw as Record<string, unknown>).meta as NotesPageMeta ?? null,
+        meta: ((raw as Record<string, unknown>).meta as NotesPageMeta) ?? null,
       };
     } catch (error) {
       throw new Error(extractMessage(error));
@@ -266,7 +272,11 @@ export const noteService = {
     }
   },
 
-  async update(id: number, payload: UpdateNotePayload, token: string): Promise<Note> {
+  async update(
+    id: number,
+    payload: UpdateNotePayload,
+    token: string,
+  ): Promise<Note> {
     try {
       const response = await api.patch(
         `/notes/one-user/${id}`,
@@ -274,7 +284,7 @@ export const noteService = {
           ...payload,
           body: payload.body ? htmlToBlocks(payload.body) : undefined, // ✅ HTML → Block[]
         },
-        { headers: authHeaders(token) }
+        { headers: authHeaders(token) },
       );
       return normalizeNote(response.data?.data ?? response.data);
     } catch (error) {
@@ -292,12 +302,22 @@ export const noteService = {
     }
   },
 
+  async deleteImage(fileId: string, token: string): Promise<void> {
+    try {
+      await api.delete(`/upload/notes/${fileId}`, {
+        headers: authHeaders(token),
+      });
+    } catch (error) {
+      throw new Error(extractMessage(error));
+    }
+  },
+
   async toggleFavorite(id: number, token: string): Promise<Note> {
     try {
       const response = await api.patch(
         `/notes/one-user/${id}/favorite`,
         undefined,
-        { headers: authHeaders(token) }
+        { headers: authHeaders(token) },
       );
       return normalizeNote(response.data?.data ?? response.data);
     } catch (error) {
@@ -310,9 +330,11 @@ export const noteService = {
       const response = await api.post(
         `/notes/one-user/${id}/share`,
         undefined,
-        { headers: authHeaders(token) }
+        { headers: authHeaders(token) },
       );
-      return { shareUrl: buildFrontendShareUrl(String(response.data?.shareUrl ?? "")) };
+      return {
+        shareUrl: buildFrontendShareUrl(String(response.data?.shareUrl ?? "")),
+      };
     } catch (error) {
       throw new Error(extractMessage(error));
     }

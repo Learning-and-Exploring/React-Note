@@ -2,10 +2,10 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App";
-import { NotesProvider } from "./context/notes-context";
+import { NotesProvider } from "@features/notes/context/notes-provider";
 import { Provider } from "react-redux";
-import { store } from "./store";
-import { TooltipProvider } from "./components/ui/tooltip";
+import { store } from "@core/store";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

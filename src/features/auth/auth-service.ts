@@ -1,6 +1,6 @@
 import axios from "axios";
-import { BASE_URL } from "./note-service";
-import { extractMessage } from "./utils";
+import { BASE_URL } from "@features/notes/services/notes-service";
+import { extractMessage } from "@features/notes/utils/notes-utils";
 
 export type RegisterPayload = {
   name: string;

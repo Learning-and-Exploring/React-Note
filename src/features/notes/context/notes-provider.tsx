@@ -1,5 +1,4 @@
 import {
-  createContext,
   useCallback,
   useEffect,
   useMemo,
@@ -13,54 +12,18 @@ import {
   type Note,
   type UpdateNotePayload,
   type NotesPageMeta,
-} from "../services/note-service";
-import { authService } from "../services/auth-service";
+} from "../services/notes-service";
+import { authService } from "@features/auth/auth-service";
 import {
   clearToken as clearTokenAction,
   setToken as setTokenAction,
-} from "../store/auth-slice";
+} from "@core/store/auth-slice";
 import {
   selectAuthToken,
   selectIsAuthenticated,
   type AppDispatch,
-} from "../store";
-
-type RegisterInput = {
-  name: string;
-  email: string;
-  password: string;
-};
-
-type LoginInput = {
-  email: string;
-  password: string;
-};
-
-type NotesContextValue = {
-  token: string;
-  isAuthenticated: boolean;
-  notes: Note[];
-  selectedNote: Note | null;
-  loading: boolean;
-  error: string | null;
-  fetchNotes: () => Promise<void>;
-  fetchNextNotesPage: () => Promise<void>;
-  hasMoreNotes: boolean;
-  loadingMoreNotes: boolean;
-  fetchNoteById: (id: number) => Promise<void>;
-  createNote: (payload: CreateNotePayload) => Promise<Note | null>;
-  updateNote: (id: number, payload: UpdateNotePayload) => Promise<void>;
-  deleteNote: (id: number) => Promise<void>;
-  toggleFavorite: (id: number) => Promise<void>;
-  shareNote: (id: number) => Promise<string | null>;
-  unshareNote: (id: number) => Promise<boolean>;
-  clearSelection: () => void;
-  register: (payload: RegisterInput) => Promise<boolean>;
-  login: (payload: LoginInput) => Promise<boolean>;
-  logout: () => void;
-};
-
-export const NotesContext = createContext<NotesContextValue | undefined>(undefined);
+} from "@core/store";
+import { NotesContext } from "./notes-context";
 
 export function NotesProvider({ children }: { children: ReactNode }) {
   const dispatch = useDispatch<AppDispatch>();
@@ -76,34 +39,28 @@ export function NotesProvider({ children }: { children: ReactNode }) {
 
   const getCurrentPageFromMeta = (meta: NotesPageMeta | null | undefined) => {
     if (!meta) return 1;
-    return (
-      meta.currentPage ??
-      meta.page ??
-      1
-    );
+    return meta.currentPage ?? meta.page ?? 1;
   };
 
   const getPageCountFromMeta = (meta: NotesPageMeta | null | undefined) => {
     if (!meta) return 1;
-    return (
-      meta.pageCount ??
-      meta.totalPages ??
-      1
-    );
+    return meta.pageCount ?? meta.totalPages ?? 1;
   };
 
-  const setToken = useCallback((nextToken: string) => {
-    if (nextToken) {
-      dispatch(setTokenAction(nextToken));
-    } else {
-      dispatch(clearTokenAction());
-    }
-  }, [dispatch]);
+  const setToken = useCallback(
+    (nextToken: string) => {
+      if (nextToken) {
+        dispatch(setTokenAction(nextToken));
+      } else {
+        dispatch(clearTokenAction());
+      }
+    },
+    [dispatch]
+  );
 
   const runWithState = useCallback(async (task: () => Promise<void>) => {
     setLoading(true);
     setError(null);
-
     try {
       await task();
       return true;
@@ -117,7 +74,7 @@ export function NotesProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const register = useCallback(
-    async (payload: RegisterInput) => {
+    async (payload: { name: string; email: string; password: string }) => {
       return runWithState(async () => {
         await authService.register(payload);
       });
@@ -126,7 +83,7 @@ export function NotesProvider({ children }: { children: ReactNode }) {
   );
 
   const login = useCallback(
-    async (payload: LoginInput) => {
+    async (payload: { email: string; password: string }) => {
       return runWithState(async () => {
         const nextToken = await authService.login(payload);
         setToken(nextToken);
@@ -141,17 +98,14 @@ export function NotesProvider({ children }: { children: ReactNode }) {
         try {
           await authService.logout(token);
         } catch (err) {
-          // Ignore logout API failures to allow client-side sign-out
           console.warn("Logout API failed", err);
         }
       }
-
       setToken("");
       setNotes([]);
       setSelectedNote(null);
       setError(null);
     };
-
     void doLogout();
   }, [setToken, token]);
 
@@ -162,12 +116,10 @@ export function NotesProvider({ children }: { children: ReactNode }) {
       setHasMoreNotes(true);
       return;
     }
-
     await runWithState(async () => {
       const { data, meta } = await noteService.listMyNotes(token, 1);
       setNotes(data);
       setNotesMeta(meta ?? null);
-
       if (meta) {
         const hasNext =
           typeof meta.hasNextPage === "boolean"
@@ -181,31 +133,22 @@ export function NotesProvider({ children }: { children: ReactNode }) {
   }, [token, runWithState]);
 
   const fetchNextNotesPage = useCallback(async () => {
-    if (!token) return;
-    if (loadingMoreNotes) return;
-    if (!hasMoreNotes) return;
-
+    if (!token || loadingMoreNotes || !hasMoreNotes) return;
     setLoadingMoreNotes(true);
     setError(null);
-
     try {
       const currentPage = getCurrentPageFromMeta(notesMeta);
       const nextPage = currentPage + 1;
       const { data, meta } = await noteService.listMyNotes(token, nextPage);
-
       setNotes((current) => {
         const existingIds = new Set(current.map((n) => n.id));
         const merged = [...current];
         for (const note of data) {
-          if (!existingIds.has(note.id)) {
-            merged.push(note);
-          }
+          if (!existingIds.has(note.id)) merged.push(note);
         }
         return merged;
       });
-
       setNotesMeta(meta ?? null);
-
       if (meta) {
         const hasNext =
           typeof meta.hasNextPage === "boolean"
@@ -226,7 +169,6 @@ export function NotesProvider({ children }: { children: ReactNode }) {
   const fetchNoteById = useCallback(
     async (id: number) => {
       if (!token) return;
-
       await runWithState(async () => {
         const note = await noteService.getById(id, token);
         setSelectedNote(note);
@@ -237,19 +179,13 @@ export function NotesProvider({ children }: { children: ReactNode }) {
 
   const createNote = useCallback(
     async (payload: CreateNotePayload) => {
-      if (!token) {
-        setError("Token is required");
-        return null;
-      }
-
+      if (!token) { setError("Token is required"); return null; }
       let createdNote: Note | null = null;
-
       const ok = await runWithState(async () => {
         const created = await noteService.create(payload, token);
         createdNote = created;
         setNotes((current) => [created, ...current]);
       });
-
       return ok ? createdNote : null;
     },
     [token, runWithState]
@@ -257,18 +193,12 @@ export function NotesProvider({ children }: { children: ReactNode }) {
 
   const updateNote = useCallback(
     async (id: number, payload: UpdateNotePayload) => {
-      if (!token) {
-        setError("Token is required");
-        return;
-      }
-
+      if (!token) { setError("Token is required"); return; }
       await runWithState(async () => {
         const updated = await noteService.update(id, payload, token);
-
         setNotes((current) =>
           current.map((item) => (item.id === id ? { ...item, ...updated } : item))
         );
-
         setSelectedNote((current) =>
           current && current.id === id ? { ...current, ...updated } : current
         );
@@ -282,11 +212,9 @@ export function NotesProvider({ children }: { children: ReactNode }) {
       await runWithState(async () => {
         await noteService.softDelete(id, token || undefined);
         setNotes((current) => current.filter((item) => item.id !== id));
-
-        setSelectedNote((current) => {
-          if (!current) return null;
-          return current.id === id ? null : current;
-        });
+        setSelectedNote((current) =>
+          current && current.id === id ? null : current
+        );
       });
     },
     [token, runWithState]
@@ -294,20 +222,14 @@ export function NotesProvider({ children }: { children: ReactNode }) {
 
   const toggleFavorite = useCallback(
     async (id: number) => {
-      if (!token) {
-        setError("Token is required");
-        return;
-      }
-
+      if (!token) { setError("Token is required"); return; }
       await runWithState(async () => {
         const updated = await noteService.toggleFavorite(id, token);
-
         setNotes((current) =>
           current.map((item) =>
             item.id === id ? { ...item, isFavorite: updated.isFavorite } : item
           )
         );
-
         setSelectedNote((current) =>
           current && current.id === id
             ? { ...current, isFavorite: updated.isFavorite }
@@ -320,17 +242,12 @@ export function NotesProvider({ children }: { children: ReactNode }) {
 
   const shareNote = useCallback(
     async (id: number) => {
-      if (!token) {
-        setError("Token is required");
-        return null;
-      }
-
+      if (!token) { setError("Token is required"); return null; }
       let link: string | null = null;
       const ok = await runWithState(async () => {
         const { shareUrl } = await noteService.share(id, token);
         link = shareUrl || null;
       });
-
       return ok ? link : null;
     },
     [token, runWithState]
@@ -338,11 +255,7 @@ export function NotesProvider({ children }: { children: ReactNode }) {
 
   const unshareNote = useCallback(
     async (id: number) => {
-      if (!token) {
-        setError("Token is required");
-        return false;
-      }
-
+      if (!token) { setError("Token is required"); return false; }
       return runWithState(async () => {
         await noteService.unshare(id, token);
       });
@@ -356,11 +269,10 @@ export function NotesProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!token) return;
-
     void fetchNotes();
   }, [token]);
 
-  const value = useMemo<NotesContextValue>(
+  const value = useMemo(
     () => ({
       token,
       isAuthenticated,
@@ -385,27 +297,10 @@ export function NotesProvider({ children }: { children: ReactNode }) {
       logout,
     }),
     [
-      token,
-      isAuthenticated,
-      notes,
-      selectedNote,
-      loading,
-      error,
-      fetchNotes,
-      fetchNextNotesPage,
-      hasMoreNotes,
-      loadingMoreNotes,
-      fetchNoteById,
-      createNote,
-      updateNote,
-      deleteNote,
-      clearSelection,
-      toggleFavorite,
-      shareNote,
-      unshareNote,
-      register,
-      login,
-      logout,
+      token, isAuthenticated, notes, selectedNote, loading, error,
+      fetchNotes, fetchNextNotesPage, hasMoreNotes, loadingMoreNotes,
+      fetchNoteById, createNote, updateNote, deleteNote, clearSelection,
+      toggleFavorite, shareNote, unshareNote, register, login, logout,
     ]
   );
 

@@ -35,9 +35,9 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useTheme } from "@/components/theme-provider";
-import { formatDate } from "@/utils/format-date";
-import type { Note } from "@/services/note-service";
+import { useTheme } from "@core/providers/theme-provider";
+import { formatDate } from "@features/notes/utils/format-date";
+import type { Note } from "@features/notes/services/notes-service";
 
 type NotionTopbarProps = {
     activeNote: Note | null;

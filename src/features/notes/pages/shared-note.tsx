@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Loader2, ShieldCheck } from "lucide-react";
 import { useParams } from "react-router-dom";
-import { Button } from "@/components/button";
-import { noteService, type Note } from "@/services/note-service";
-import { formatDate } from "@/utils/format-date";
+import { Button } from "@shared/components/button";
+import { noteService, type Note } from "../services/notes-service";
+import { formatDate } from "../utils/format-date";
 import { cn } from "@/lib/utils";
 
 type SharedNotePageProps = {
@@ -28,36 +28,35 @@ export function SharedNotePage({ shareToken }: SharedNotePageProps) {
     return base.endsWith("/") ? base : `${base}/`;
   }, []);
 
+
   useEffect(() => {
     let active = true;
-    setStatus("loading");
-    setError(null);
 
-    if (!token) {
-      setError("Share link is missing or invalid.");
-      setStatus("error");
-      return () => {
-        active = false;
-      };
-    }
+    const load = async () => {
+      if (!token) {
+        if (active) {
+          setError("Share link is missing or invalid.");
+          setStatus("error");
+        }
+        return;
+      }
 
-    noteService
-      .getSharedByToken(token)
-      .then((data) => {
+      try {
+        const data = await noteService.getSharedByToken(token);
         if (!active) return;
         setNote(data);
         setStatus("ready");
-      })
-      .catch((err) => {
+      } catch (err) {
         if (!active) return;
         const message = err instanceof Error ? err.message : "Unable to load note";
         setError(message);
         setStatus("error");
-      });
-
-    return () => {
-      active = false;
+      }
     };
+
+    void load();
+
+    return () => { active = false; };
   }, [token]);
 
   const lastUpdatedLabel = useMemo(
@@ -70,7 +69,7 @@ export function SharedNotePage({ shareToken }: SharedNotePageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#eef1f6] via-white to-[#f5f5f7] text-slate-900 dark:from-[#0f1115] dark:via-[#0b0d11] dark:to-[#08090d]">
+    <div className="min-h-screen bg-linear-to-br from-[#eef1f6] via-white to-[#f5f5f7] text-slate-900 dark:from-[#0f1115] dark:via-[#0b0d11] dark:to-[#08090d]">
       <div className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-8 sm:py-14">
         <header className="flex flex-col gap-3 rounded-3xl bg-white/85 px-5 py-4 shadow-[0_16px_40px_rgba(0,0,0,0.08)] ring-1 ring-white/70 backdrop-blur sm:flex-row sm:items-center sm:justify-between dark:bg-zinc-900/85 dark:ring-white/10">
           <div className="flex items-center gap-3">

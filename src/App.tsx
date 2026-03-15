@@ -1,11 +1,12 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { useNotes } from "./hooks/use-notes";
-import { Home } from "./pages/Home";
-import { AuthPage } from "./pages/auth";
-import { SharedNotePage } from "./pages/shared-note";
-import { NotFound } from "./pages/not-found";
-import { ThemeProvider } from "./components/theme-provider";
-import { ProtectedRoute } from "./routes/protected-route";
+import { useNotes } from "@features/notes/hooks/use-notes";
+import { Home } from "@features/notes/pages/Home";
+import { AuthPage } from "@features/auth/pages/auth";
+import { SharedNotePage } from "@features/notes/pages/shared-note";
+import { NotFound } from "@shared/pages/not-found";
+import { ThemeProvider } from "@core/providers/theme-provider";
+import { ProtectedRoute } from "@core/routes/protected-route";
+
 
 function AppRoutes() {
   const { isAuthenticated } = useNotes();
