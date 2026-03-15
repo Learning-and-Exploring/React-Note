@@ -140,6 +140,9 @@ function htmlToBlocks(html: string): Block[] {
       return;
     }
 
+    const text = el.innerText || el.textContent || "";
+    if (!text.trim() && tag !== "br") return; // 👈 skip <p><br/></p>
+
     blocks.push({
       id: crypto.randomUUID(),
       type: TAG_TO_TYPE[tag] || "paragraph",
