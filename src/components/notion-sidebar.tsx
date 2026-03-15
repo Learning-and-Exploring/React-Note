@@ -93,6 +93,12 @@ export function NotionSidebar({
     // ── Infinite scroll sentinel ──────────────────────────────────────────────
     const sentinelRef = useRef<HTMLDivElement>(null);
 
+    // 👇 Stable ref — avoids recreating the observer on every render
+    const onLoadMoreRef = useRef(onLoadMoreNotes);
+    useEffect(() => {
+        onLoadMoreRef.current = onLoadMoreNotes;
+    }, [onLoadMoreNotes]);
+
     useEffect(() => {
         const sentinel = sentinelRef.current;
         if (!sentinel) return;
@@ -100,7 +106,7 @@ export function NotionSidebar({
         const observer = new IntersectionObserver(
             (entries) => {
                 if (entries[0].isIntersecting && hasMoreNotes && !loadingMoreNotes) {
-                    onLoadMoreNotes();
+                    onLoadMoreRef.current();
                 }
             },
             { threshold: 0.1 }
@@ -108,7 +114,7 @@ export function NotionSidebar({
 
         observer.observe(sentinel);
         return () => observer.disconnect();
-    }, [hasMoreNotes, loadingMoreNotes, onLoadMoreNotes]);
+    }, [hasMoreNotes, loadingMoreNotes]);
 
     return (
         <>
@@ -260,8 +266,8 @@ export function NotionSidebar({
                                         {loadingMoreNotes
                                             ? "Loading more..."
                                             : hasMoreNotes
-                                            ? "Scroll to load more"
-                                            : "All notes loaded"}
+                                                ? "Scroll to load more"
+                                                : "All notes loaded"}
                                     </div>
                                 )}
                             </div>

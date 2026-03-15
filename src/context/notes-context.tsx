@@ -358,7 +358,7 @@ export function NotesProvider({ children }: { children: ReactNode }) {
     if (!token) return;
 
     void fetchNotes();
-  }, [token, fetchNotes]);
+  }, [token]);
 
   const value = useMemo<NotesContextValue>(
     () => ({
