@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Check, Loader2, ImageIcon } from "lucide-react";
+import { Check, Loader2, ImageIcon, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Note } from "@/services/note-service";
 import { noteService } from "@/services/note-service";
@@ -24,7 +24,7 @@ const SLASH_ITEMS = [
   { label: "Bulleted list", action: (_: (t: string) => void, applyCommand: (c: string, v?: string) => void) => applyCommand("insertUnorderedList") },
   { label: "Numbered list", action: (_: (t: string) => void, applyCommand: (c: string, v?: string) => void) => applyCommand("insertOrderedList") },
   { label: "Code block",    action: (applyBlock: (t: string) => void) => applyBlock("pre") },
-  { label: "Image",         action: () => {} }, // 👈 handled separately
+  { label: "Image",         action: () => {} },
 ] as const;
 
 export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
@@ -34,13 +34,14 @@ export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [isBodyActive, setIsBodyActive] = useState(!isHtmlEmpty(note.body));
   const [isUploading, setIsUploading] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<{ el: HTMLImageElement; fileId: string } | null>(null);
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const editorRef = useRef<HTMLDivElement>(null);
   const activePreRef = useRef<HTMLPreElement | null>(null);
   const slashMenuRef = useRef<HTMLDivElement | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);         // 👈 hidden file input
-  const savedRangeRef = useRef<Range | null>(null);            // 👈 save cursor before file dialog
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const savedRangeRef = useRef<Range | null>(null);
 
   const [copyAnchor, setCopyAnchor] = useState<{ top: number; left: number; code: string } | null>(null);
   const [copyLabel, setCopyLabel] = useState<"Copy" | "Copied">("Copy");
@@ -79,17 +80,17 @@ export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
     [note.id, onUpdate]
   );
 
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.slice(0, TITLE_MAX_LENGTH);
-    setTitle(value);
-    scheduleSave(value, bodyHtml);
-  };
-
-  const handleBodyInput = () => {
+  const handleBodyInput = useCallback(() => {
     const html = editorRef.current?.innerHTML ?? "";
     const normalized = normalizeHtml(html);
     setBodyHtml(normalized);
     scheduleSave(title, normalized);
+  }, [title, scheduleSave]);
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.slice(0, TITLE_MAX_LENGTH);
+    setTitle(value);
+    scheduleSave(value, bodyHtml);
   };
 
   const handleBodyBlur = () => {
@@ -102,9 +103,8 @@ export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
     }
   };
 
-  // ── Image upload ────────────────────────────────────────────────────────────
+  // ── Image ──────────────────────────────────────────────────────────────────
 
-  // Save cursor position before file dialog steals focus
   const saveRange = () => {
     const selection = window.getSelection();
     if (selection && selection.rangeCount > 0) {
@@ -112,22 +112,17 @@ export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
     }
   };
 
-  // Restore cursor and insert image HTML at that position
   const insertImageAtCursor = (imageHtml: string) => {
     const el = editorRef.current;
     if (!el) return;
-
     el.focus();
-
     const selection = window.getSelection();
     if (!selection) return;
-
-    // Restore saved range if selection is lost
     if (savedRangeRef.current) {
       selection.removeAllRanges();
       selection.addRange(savedRangeRef.current);
     }
-
+    // 👇 Insert image + empty paragraph so cursor has somewhere to go
     document.execCommand("insertHTML", false, `${imageHtml}<p><br/></p>`);
     handleBodyInput();
   };
@@ -135,58 +130,165 @@ export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
   const handleImageFile = useCallback(async (file: File) => {
     if (!token) return;
     if (!file.type.startsWith("image/")) return;
-
     setIsUploading(true);
     try {
       const { url, fileId, filePath } = await noteService.uploadImage(file, token);
-
-      // Insert image with data attributes so cleanup can find fileId later
-      const imageHtml = `
-        <img
-          src="${url}"
-          data-file-id="${fileId}"
-          data-file-path="${filePath}"
-          alt="note image"
-          class="notion-image"
-          style="max-width:100%;border-radius:8px;margin:8px 0;display:block;"
-        />
-      `;
+      const imageHtml = `<img src="${url}" data-file-id="${fileId}" data-file-path="${filePath}" alt="note image" class="notion-image" style="max-width:100%;border-radius:8px;margin:8px 0;display:block;" />`;
       insertImageAtCursor(imageHtml);
     } catch (err) {
       console.error("Image upload failed:", err);
     } finally {
       setIsUploading(false);
     }
-  }, [token]);
+  }, [token, handleBodyInput]);
 
-  // Triggered when user selects a file via the hidden input
   const handleFileInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     await handleImageFile(file);
-    e.target.value = ""; // reset so same file can be re-selected
+    e.target.value = "";
   };
 
-  // Triggered from slash menu "Image" item
   const triggerImageUpload = () => {
     saveRange();
     fileInputRef.current?.click();
   };
 
-  // Paste image directly into editor
   const handlePaste = useCallback(async (e: React.ClipboardEvent<HTMLDivElement>) => {
     const items = Array.from(e.clipboardData.items);
     const imageItem = items.find((item) => item.type.startsWith("image/"));
-
-    if (!imageItem) return; // let default paste handle text
-
+    if (!imageItem) return;
     e.preventDefault();
     const file = imageItem.getAsFile();
     if (!file) return;
     await handleImageFile(file);
   }, [handleImageFile]);
 
-  // ── Existing handlers (unchanged) ──────────────────────────────────────────
+  const handleDeleteImage = useCallback(async () => {
+    if (!selectedImage) return;
+
+    // Remove selected class
+    selectedImage.el.classList.remove("selected");
+
+    // Remove from DOM
+    selectedImage.el.remove();
+    handleBodyInput();
+    setSelectedImage(null);
+
+    // Delete from ImageKit in background
+    if (selectedImage.fileId && token) {
+      try {
+        await noteService.deleteImage(selectedImage.fileId, token);
+      } catch (err) {
+        console.error("Failed to delete image from ImageKit:", err);
+      }
+    }
+  }, [selectedImage, token, handleBodyInput]);
+
+  // ── Click handler — unified ────────────────────────────────────────────────
+  // 👇 Single onClick handler — replaces the old inline one on the wrapper div
+  const handleEditorClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+
+    if (target.tagName === "IMG") {
+      // Deselect previous
+      editorRef.current?.querySelectorAll("img.selected").forEach((img) => {
+        img.classList.remove("selected");
+      });
+
+      const img = target as HTMLImageElement;
+      img.classList.add("selected");
+      setSelectedImage({ el: img, fileId: img.getAttribute("data-file-id") || "" });
+      return;
+    }
+
+    // Deselect image if clicked elsewhere
+    editorRef.current?.querySelectorAll("img.selected").forEach((img) => {
+      img.classList.remove("selected");
+    });
+    setSelectedImage(null);
+
+    // If editor itself clicked and last child is an image — append paragraph
+    if (target === editorRef.current) {
+      const lastChild = editorRef.current.lastElementChild;
+      if (lastChild?.tagName === "IMG") {
+        const p = document.createElement("p");
+        p.innerHTML = "<br/>";
+        editorRef.current.appendChild(p);
+        const range = document.createRange();
+        range.setStart(p, 0);
+        range.collapse(true);
+        const selection = window.getSelection();
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+        return;
+      }
+    }
+
+    if (editorRef.current) {
+      if (isHtmlEmpty(editorRef.current.innerHTML)) {
+        editorRef.current.innerHTML = "<p><br /></p>";
+      }
+      editorRef.current.focus();
+    }
+  };
+
+  // ── Keyboard ───────────────────────────────────────────────────────────────
+  // 👇 Single handleEditorKeyDown — handles both image and slash menu
+  const handleEditorKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    // ── Image selected ───────────────────────────────────────────────────────
+    if (selectedImage) {
+      if (e.key === "Backspace" || e.key === "Delete") {
+        e.preventDefault();
+        void handleDeleteImage();
+        return;
+      }
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const img = selectedImage.el;
+        const p = document.createElement("p");
+        p.innerHTML = "<br/>";
+        img.insertAdjacentElement("afterend", p);
+        const range = document.createRange();
+        range.setStart(p, 0);
+        range.collapse(true);
+        const selection = window.getSelection();
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+        img.classList.remove("selected");
+        setSelectedImage(null);
+        handleBodyInput();
+        return;
+      }
+      if (e.key === "Escape") {
+        selectedImage.el.classList.remove("selected");
+        setSelectedImage(null);
+        return;
+      }
+    }
+
+    // ── Slash menu ───────────────────────────────────────────────────────────
+    if (!slashMenu.open) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setSlashIndex((i) => (i + 1) % SLASH_ITEMS.length);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setSlashIndex((i) => (i - 1 + SLASH_ITEMS.length) % SLASH_ITEMS.length);
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      const item = SLASH_ITEMS[slashIndex];
+      if (item.label === "Image") {
+        applySlashCommand(triggerImageUpload);
+      } else {
+        applySlashCommand(() => item.action(applyBlock, applyCommand));
+      }
+    } else if (e.key === "Escape") {
+      closeSlashMenu();
+    }
+  };
+
+  // ── Existing handlers ──────────────────────────────────────────────────────
 
   const handleEditorMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const pre = (e.target as HTMLElement)?.closest("pre") as HTMLPreElement | null;
@@ -243,11 +345,7 @@ export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
     if (!container) return;
     const containerRect = container.getBoundingClientRect();
     setSlashIndex(0);
-    setSlashMenu({
-      open: true,
-      top: rect.top - containerRect.top + 18,
-      left: rect.left - containerRect.left,
-    });
+    setSlashMenu({ open: true, top: rect.top - containerRect.top + 18, left: rect.left - containerRect.left });
   };
 
   const closeSlashMenu = () => setSlashMenu((prev) => ({ ...prev, open: false }));
@@ -296,30 +394,10 @@ export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
 
   const applyBlock = (tag: string) => applyCommand("formatBlock", tag);
 
-  const handleEditorKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (!slashMenu.open) return;
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      setSlashIndex((i) => (i + 1) % SLASH_ITEMS.length);
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setSlashIndex((i) => (i - 1 + SLASH_ITEMS.length) % SLASH_ITEMS.length);
-    } else if (e.key === "Enter") {
-      e.preventDefault();
-      const item = SLASH_ITEMS[slashIndex];
-      if (item.label === "Image") {
-        applySlashCommand(triggerImageUpload);
-      } else {
-        applySlashCommand(() => item.action(applyBlock, applyCommand));
-      }
-    } else if (e.key === "Escape") {
-      closeSlashMenu();
-    }
-  };
+  // ── JSX ────────────────────────────────────────────────────────────────────
 
   return (
     <div className="flex flex-col h-full">
-      {/* 👇 Hidden file input — triggered by slash menu or toolbar */}
       <input
         ref={fileInputRef}
         type="file"
@@ -332,10 +410,7 @@ export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
         <div className="relative mx-auto flex flex-col rounded-3xl bg-white/85 px-5 py-6 ring-1 ring-white/70 backdrop-blur sm:px-8 sm:py-8 dark:bg-zinc-900/80 dark:ring-white/10 max-h-[75vh] sm:max-h-[78vh] overflow-hidden">
           <div className="sticky -top-10 z-10 -mx-5 -mt-6 mb-4 px-5 pt-5 pb-4 sm:-mx-8 sm:-mt-8 sm:px-8 sm:pt-8 bg-white/90 backdrop-blur supports-[backdrop-filter]:backdrop-blur rounded-2xl border border-white/60 dark:bg-zinc-900/90 dark:border-white/10">
             {(saveStatus === "saving" || saveStatus === "saved") && (
-              <div
-                aria-live="polite"
-                className="absolute right-5 top-5 sm:right-7 sm:top-7 flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs shadow-sm ring-1 ring-black/5 backdrop-blur dark:bg-zinc-950/80 dark:ring-white/10"
-              >
+              <div aria-live="polite" className="absolute right-5 top-5 sm:right-7 sm:top-7 flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs shadow-sm ring-1 ring-black/5 backdrop-blur dark:bg-zinc-950/80 dark:ring-white/10">
                 {saveStatus === "saving" ? (
                   <><Loader2 className="w-3 h-3 animate-spin text-zinc-400" /><span className="text-zinc-500">Saving...</span></>
                 ) : (
@@ -358,9 +433,7 @@ export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
                 maxLength={TITLE_MAX_LENGTH}
               />
               {title.length >= TITLE_MAX_LENGTH && (
-                <p className="text-xs text-amber-600 dark:text-amber-400" role="alert">
-                  {TITLE_LIMIT_MESSAGE}
-                </p>
+                <p className="text-xs text-amber-600 dark:text-amber-400" role="alert">{TITLE_LIMIT_MESSAGE}</p>
               )}
             </div>
             <div className="flex items-center gap-3 mt-4 group">
@@ -372,10 +445,7 @@ export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
             {!isBodyActive && isHtmlEmpty(bodyHtml) ? (
               <button
                 type="button"
-                onClick={() => {
-                  setIsBodyActive(true);
-                  requestAnimationFrame(() => editorRef.current?.focus());
-                }}
+                onClick={() => { setIsBodyActive(true); requestAnimationFrame(() => editorRef.current?.focus()); }}
                 className="flex min-h-[55vh] w-full items-start rounded-2xl border border-dashed border-zinc-200/70 px-4 py-3 text-left text-base text-zinc-400 transition hover:border-zinc-300 hover:text-zinc-500 dark:border-zinc-800/60 dark:text-zinc-500 dark:hover:border-zinc-700 dark:hover:text-zinc-400"
               >
                 Click to start writing, or press "/" for commands...
@@ -385,14 +455,7 @@ export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
                 className="relative"
                 onMouseMove={handleEditorMouseMove}
                 onMouseLeave={handleEditorMouseLeave}
-                onClick={() => {
-                  if (editorRef.current) {
-                    if (isHtmlEmpty(editorRef.current.innerHTML)) {
-                      editorRef.current.innerHTML = "<p><br /></p>";
-                    }
-                    editorRef.current.focus();
-                  }
-                }}
+                onClick={handleEditorClick}  // ✅ unified click handler
               >
                 {/* Toolbar */}
                 <div className="notion-toolbar mb-4 flex flex-wrap items-center gap-1.5">
@@ -410,22 +473,31 @@ export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
                   <button type="button" onClick={() => applyCommand("insertUnorderedList")} data-active={activeMarks.ul}>Bullet</button>
                   <button type="button" onClick={() => applyCommand("insertOrderedList")} data-active={activeMarks.ol}>Numbered</button>
                   <button type="button" onClick={() => applyBlock("pre")} data-active={activeMarks.block === "pre"}>Code</button>
-
-                  {/* 👇 Image button in toolbar */}
-                  <button
-                    type="button"
-                    onClick={triggerImageUpload}
-                    disabled={isUploading}
-                    className="flex items-center gap-1"
-                    title="Upload image"
-                  >
-                    {isUploading
-                      ? <Loader2 className="w-3 h-3 animate-spin" />
-                      : <ImageIcon className="w-3 h-3" />
-                    }
+                  <button type="button" onClick={triggerImageUpload} disabled={isUploading} className="flex items-center gap-1" title="Upload image">
+                    {isUploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <ImageIcon className="w-3 h-3" />}
                     Image
                   </button>
                 </div>
+
+                {/* 👇 Image selected toolbar */}
+                {selectedImage && (
+                  <div className="absolute z-20 flex items-center gap-2 rounded-xl bg-zinc-900 px-3 py-1.5 shadow-lg"
+                    style={{
+                      top: (selectedImage.el.offsetTop ?? 0) - 40,
+                      left: selectedImage.el.offsetLeft ?? 0,
+                    }}
+                  >
+                    <button
+                      type="button"
+                      onMouseDown={(e) => { e.preventDefault(); void handleDeleteImage(); }}
+                      className="flex items-center gap-1.5 text-xs text-red-400 hover:text-red-300"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                      Delete
+                    </button>
+                    <span className="text-xs text-zinc-500">· Enter to add text below · Esc to deselect</span>
+                  </div>
+                )}
 
                 {copyAnchor && (
                   <button type="button" onClick={handleCopyCode} className="notion-copy-btn" style={{ top: copyAnchor.top, left: copyAnchor.left }}>
@@ -435,20 +507,13 @@ export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
 
                 {/* Slash menu */}
                 {slashMenu.open && (
-                  <div
-                    ref={slashMenuRef}
-                    className="notion-slash-menu"
-                    style={{ top: slashMenu.top, left: slashMenu.left }}
-                  >
+                  <div ref={slashMenuRef} className="notion-slash-menu" style={{ top: slashMenu.top, left: slashMenu.left }}>
                     {SLASH_ITEMS.map((item, i) => (
                       <button
                         key={item.label}
                         type="button"
                         data-active={i === slashIndex}
-                        className={cn(
-                          "flex items-center gap-2",
-                          i === slashIndex && "bg-zinc-100 dark:bg-zinc-800"
-                        )}
+                        className={cn("flex items-center gap-2", i === slashIndex && "bg-zinc-100 dark:bg-zinc-800")}
                         onMouseEnter={() => setSlashIndex(i)}
                         onClick={() => {
                           if (item.label === "Image") {
@@ -458,7 +523,6 @@ export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
                           }
                         }}
                       >
-                        {/* 👇 Icon for image item */}
                         {item.label === "Image" && <ImageIcon className="w-3 h-3" />}
                         {item.label}
                       </button>
@@ -466,7 +530,6 @@ export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
                   </div>
                 )}
 
-                {/* 👇 Upload overlay */}
                 {isUploading && (
                   <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-white/60 backdrop-blur dark:bg-zinc-900/60">
                     <div className="flex items-center gap-2 text-sm text-zinc-500">
@@ -484,14 +547,14 @@ export function NotionEditor({ note, onUpdate }: NotionEditorProps) {
                   onInput={handleBodyInput}
                   onBlur={handleBodyBlur}
                   onFocus={() => setIsBodyActive(true)}
-                  onKeyDown={handleEditorKeyDown}
+                  onKeyDown={handleEditorKeyDown}  // ✅ single unified handler
                   onKeyUp={(e) => {
                     if (slashMenu.open) return;
                     if (e.key === "/") openSlashMenu();
                     else updateActiveMarks();
                   }}
                   onMouseUp={updateActiveMarks}
-                  onPaste={handlePaste}  // 👈 handles paste from clipboard
+                  onPaste={handlePaste}
                   spellCheck={false}
                   className={cn(
                     "notion-richtext min-h-[55vh] w-full bg-transparent text-base text-zinc-700 dark:text-zinc-300",
