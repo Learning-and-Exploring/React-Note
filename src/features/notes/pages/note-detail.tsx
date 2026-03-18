@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button } from "../components/button";
+import { Button } from "@/components/ui/button";
 import { Save, X } from "lucide-react";
 import { formatDate } from "../utils/format-date";
 import { useNotes } from "../hooks/use-notes";

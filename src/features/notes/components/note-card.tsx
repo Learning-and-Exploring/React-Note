@@ -1,7 +1,7 @@
 import { Trash2 } from "lucide-react";
-import { Button } from "./button";
+import { Button } from "@/components/ui/button";
 import { formatDate } from "../utils/format-date";
-import type { Note } from "../services/note-service";
+import type { Note } from "../services/notes-service";
 
 type NoteCardProps = {
   note: Note;
@@ -34,7 +34,7 @@ export function NoteCard({ note, isSelected, onView, onDelete }: NoteCardProps) 
         <Button
           size="sm"
           variant="secondary"
-          onClick={(e) => {
+          onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
             e.stopPropagation();
             onDelete(note.id);
           }}

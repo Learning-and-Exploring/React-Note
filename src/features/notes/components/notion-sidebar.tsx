@@ -28,7 +28,7 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import type { Note } from "@/services/note-service";
+import type { Note } from "@features/notes/services/notes-service";
 import { useState, useEffect, useRef } from "react";
 
 export type NavSection = "home" | "notes" | "favorites";
