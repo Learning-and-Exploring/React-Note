@@ -7,8 +7,12 @@ type ProtectedRouteProps = {
 };
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { isAuthenticated } = useNotes();
+  const { authInitialized, isAuthenticated } = useNotes();
   const location = useLocation();
+
+  if (!authInitialized) {
+    return null;
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/auth" replace state={{ from: location }} />;

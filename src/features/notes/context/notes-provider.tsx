@@ -16,18 +16,31 @@ import {
 import { authService } from "@features/auth/auth-service";
 import {
   clearToken as clearTokenAction,
+  setAuthInitialized as setAuthInitializedAction,
   setToken as setTokenAction,
 } from "@core/store/auth-slice";
 import {
+  selectAuthInitialized,
   selectAuthToken,
   selectIsAuthenticated,
   type AppDispatch,
 } from "@core/store";
 import { NotesContext } from "./notes-context";
 
+let authBootstrapPromise: Promise<string | null> | null = null;
+
+function restoreSession() {
+  if (!authBootstrapPromise) {
+    authBootstrapPromise = authService.refresh().catch(() => null);
+  }
+
+  return authBootstrapPromise;
+}
+
 export function NotesProvider({ children }: { children: ReactNode }) {
   const dispatch = useDispatch<AppDispatch>();
   const token = useSelector(selectAuthToken);
+  const authInitialized = useSelector(selectAuthInitialized);
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const [notes, setNotes] = useState<Note[]>([]);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
@@ -109,7 +122,35 @@ export function NotesProvider({ children }: { children: ReactNode }) {
     void doLogout();
   }, [setToken, token]);
 
+  useEffect(() => {
+    let active = true;
+
+    const initializeAuth = async () => {
+      try {
+        const nextToken = await restoreSession();
+        if (!active) return;
+        if (nextToken) {
+          dispatch(setTokenAction(nextToken));
+        } else {
+          dispatch(clearTokenAction());
+        }
+      } finally {
+        if (!active) return;
+        dispatch(setAuthInitializedAction(true));
+      }
+    };
+
+    void initializeAuth();
+
+    return () => {
+      active = false;
+    };
+  }, [dispatch]);
+
   const fetchNotes = useCallback(async () => {
+    if (!authInitialized) {
+      return;
+    }
     if (!token) {
       setNotes([]);
       setNotesMeta(null);
@@ -130,7 +171,7 @@ export function NotesProvider({ children }: { children: ReactNode }) {
         setHasMoreNotes(false);
       }
     });
-  }, [token, runWithState]);
+  }, [authInitialized, token, runWithState]);
 
   const fetchNextNotesPage = useCallback(async () => {
     if (!token || loadingMoreNotes || !hasMoreNotes) return;
@@ -268,14 +309,15 @@ export function NotesProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!token) return;
+    if (!authInitialized || !token) return;
     void fetchNotes();
-  }, [token]);
+  }, [authInitialized, token, fetchNotes]);
 
   const value = useMemo(
     () => ({
       token,
       isAuthenticated,
+      authInitialized,
       notes,
       selectedNote,
       loading,
@@ -297,7 +339,7 @@ export function NotesProvider({ children }: { children: ReactNode }) {
       logout,
     }),
     [
-      token, isAuthenticated, notes, selectedNote, loading, error,
+      token, isAuthenticated, authInitialized, notes, selectedNote, loading, error,
       fetchNotes, fetchNextNotesPage, hasMoreNotes, loadingMoreNotes,
       fetchNoteById, createNote, updateNote, deleteNote, clearSelection,
       toggleFavorite, shareNote, unshareNote, register, login, logout,

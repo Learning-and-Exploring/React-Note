@@ -1,18 +1,13 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
-export const TOKEN_STORAGE_KEY = "note_app_token";
-
 type AuthState = {
   token: string;
+  initialized: boolean;
 };
 
-function getInitialToken() {
-  if (typeof localStorage === "undefined") return "";
-  return localStorage.getItem(TOKEN_STORAGE_KEY) ?? "";
-}
-
 const initialState: AuthState = {
-  token: getInitialToken(),
+  token: "",
+  initialized: false,
 };
 
 const authSlice = createSlice({
@@ -21,20 +16,19 @@ const authSlice = createSlice({
   reducers: {
     setToken(state, action: PayloadAction<string>) {
       state.token = action.payload;
-      if (typeof localStorage !== "undefined") {
-        localStorage.setItem(TOKEN_STORAGE_KEY, action.payload);
-      }
+      state.initialized = true;
     },
     clearToken(state) {
       state.token = "";
-      if (typeof localStorage !== "undefined") {
-        localStorage.removeItem(TOKEN_STORAGE_KEY);
-      }
+      state.initialized = true;
+    },
+    setAuthInitialized(state, action: PayloadAction<boolean>) {
+      state.initialized = action.payload;
     },
   },
 });
 
-export const { setToken, clearToken } = authSlice.actions;
+export const { setToken, clearToken, setAuthInitialized } = authSlice.actions;
 export const authReducer = authSlice.reducer;
 
 export type AuthStateSlice = ReturnType<typeof authReducer>;

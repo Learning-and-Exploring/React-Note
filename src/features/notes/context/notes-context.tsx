@@ -15,6 +15,7 @@ type LoginInput = {
 export type NotesContextValue = {
   token: string;
   isAuthenticated: boolean;
+  authInitialized: boolean;
   notes: Note[];
   selectedNote: Note | null;
   loading: boolean;

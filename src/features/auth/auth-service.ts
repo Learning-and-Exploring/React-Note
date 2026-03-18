@@ -17,6 +17,7 @@ export type LogoutResponse = { message: string };
 
 const authApi = axios.create({
   baseURL: BASE_URL,
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
@@ -51,6 +52,22 @@ export const authService = {
 
       if (!token) {
         throw new Error("Login succeeded but token was not returned");
+      }
+
+      return token;
+    } catch (error) {
+      throw new Error(extractMessage(error));
+    }
+  },
+
+  async refresh(): Promise<string> {
+    try {
+      const response = await authApi.post("/users/refresh");
+      const data = response.data?.data ?? response.data;
+      const token = extractToken(data);
+
+      if (!token) {
+        throw new Error("Refresh succeeded but token was not returned");
       }
 
       return token;

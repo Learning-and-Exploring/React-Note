@@ -9,7 +9,7 @@ import { ProtectedRoute } from "@core/routes/protected-route";
 
 
 function AppRoutes() {
-  const { isAuthenticated } = useNotes();
+  const { authInitialized, isAuthenticated } = useNotes();
 
   return (
     <Routes>
@@ -17,7 +17,9 @@ function AppRoutes() {
       <Route path="/notes/shared/:token" element={<SharedNotePage />} />
       <Route
         path="/auth"
-        element={isAuthenticated ? <Navigate to="/" replace /> : <AuthPage />}
+        element={
+          !authInitialized ? null : isAuthenticated ? <Navigate to="/" replace /> : <AuthPage />
+        }
       />
       <Route
         path="/"
