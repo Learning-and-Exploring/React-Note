@@ -1089,18 +1089,15 @@ export function AdminDashboardPage() {
                               return (
                                 <tr
                                   key={user.id}
-                                  className={`border-t border-slate-200/70 transition dark:border-white/10 ${
+                                  className={`cursor-pointer border-t border-slate-200/70 transition dark:border-white/10 ${
                                     isSelected
                                       ? "bg-sky-50 dark:bg-white/6"
                                       : "hover:bg-slate-50/80 dark:hover:bg-white/4"
                                   }`}
+                                  onClick={() => setSelectedUserId(user.id)}
                                 >
                                   <td className="px-5 py-4">
-                                    <button
-                                      type="button"
-                                      className="flex items-center gap-3 text-left"
-                                      onClick={() => setSelectedUserId(user.id)}
-                                    >
+                                    <div className="flex items-center gap-3 text-left">
                                       <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-200 text-sm font-semibold text-slate-700 dark:bg-white/10 dark:text-slate-100">
                                         {getInitials(user.name)}
                                       </div>
@@ -1112,7 +1109,7 @@ export function AdminDashboardPage() {
                                           #{user.id}
                                         </p>
                                       </div>
-                                    </button>
+                                    </div>
                                   </td>
                                   <td className="px-5 py-4 text-sm text-slate-600 dark:text-slate-300">
                                     {user.email}
@@ -1136,7 +1133,10 @@ export function AdminDashboardPage() {
                                       variant="outline"
                                       className="rounded-2xl"
                                       disabled={isBusy}
-                                      onClick={() => void handleToggleUserActive(user.id)}
+                                      onClick={(event) => {
+                                        event.stopPropagation();
+                                        void handleToggleUserActive(user.id);
+                                      }}
                                     >
                                       {isBusy ? (
                                         <Loader2 className="h-4 w-4 animate-spin" />
