@@ -1,4 +1,5 @@
 import { createContext } from "react";
+import type { AuthUser } from "@features/auth/auth-service";
 import type { CreateNotePayload, Note, UpdateNotePayload } from "../services/notes-service";
 
 type RegisterInput = {
@@ -14,6 +15,7 @@ type LoginInput = {
 
 export type NotesContextValue = {
   token: string;
+  currentUser: AuthUser | null;
   isAuthenticated: boolean;
   authInitialized: boolean;
   notes: Note[];

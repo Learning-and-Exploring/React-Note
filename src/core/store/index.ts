@@ -13,6 +13,7 @@ export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
 export const selectAuthToken = (state: RootState) => state.auth.token;
+export const selectAuthUser = (state: RootState) => state.auth.user;
 export const selectAuthInitialized = (state: RootState) =>
   state.auth.initialized;
 export const selectIsAuthenticated = (state: RootState) =>

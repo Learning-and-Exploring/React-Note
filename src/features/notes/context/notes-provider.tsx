@@ -14,14 +14,17 @@ import {
   type NotesPageMeta,
 } from "../services/notes-service";
 import { authService } from "@features/auth/auth-service";
+import { deriveUserFromToken } from "@features/auth/auth-service";
 import {
   clearToken as clearTokenAction,
   setAuthInitialized as setAuthInitializedAction,
+  setSession as setSessionAction,
   setToken as setTokenAction,
 } from "@core/store/auth-slice";
 import {
   selectAuthInitialized,
   selectAuthToken,
+  selectAuthUser,
   selectIsAuthenticated,
   type AppDispatch,
 } from "@core/store";
@@ -40,6 +43,7 @@ function restoreSession() {
 export function NotesProvider({ children }: { children: ReactNode }) {
   const dispatch = useDispatch<AppDispatch>();
   const token = useSelector(selectAuthToken);
+  const currentUser = useSelector(selectAuthUser);
   const authInitialized = useSelector(selectAuthInitialized);
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const [notes, setNotes] = useState<Note[]>([]);
@@ -98,11 +102,11 @@ export function NotesProvider({ children }: { children: ReactNode }) {
   const login = useCallback(
     async (payload: { email: string; password: string }) => {
       return runWithState(async () => {
-        const nextToken = await authService.login(payload);
-        setToken(nextToken);
+        const session = await authService.login(payload);
+        dispatch(setSessionAction(session));
       });
     },
-    [runWithState, setToken]
+    [dispatch, runWithState]
   );
 
   const logout = useCallback(() => {
@@ -130,7 +134,12 @@ export function NotesProvider({ children }: { children: ReactNode }) {
         const nextToken = await restoreSession();
         if (!active) return;
         if (nextToken) {
-          dispatch(setTokenAction(nextToken));
+          dispatch(
+            setSessionAction({
+              token: nextToken,
+              user: deriveUserFromToken(nextToken),
+            }),
+          );
         } else {
           dispatch(clearTokenAction());
         }
@@ -316,6 +325,7 @@ export function NotesProvider({ children }: { children: ReactNode }) {
   const value = useMemo(
     () => ({
       token,
+      currentUser,
       isAuthenticated,
       authInitialized,
       notes,
@@ -339,7 +349,7 @@ export function NotesProvider({ children }: { children: ReactNode }) {
       logout,
     }),
     [
-      token, isAuthenticated, authInitialized, notes, selectedNote, loading, error,
+      token, currentUser, isAuthenticated, authInitialized, notes, selectedNote, loading, error,
       fetchNotes, fetchNextNotesPage, hasMoreNotes, loadingMoreNotes,
       fetchNoteById, createNote, updateNote, deleteNote, clearSelection,
       toggleFavorite, shareNote, unshareNote, register, login, logout,

@@ -16,6 +16,7 @@ export function Home() {
   const navigate = useNavigate();
   const { id: routeId } = useParams<{ id?: string }>();
   const {
+    currentUser,
     notes,
     selectedNote,
     createNote,
@@ -32,8 +33,9 @@ export function Home() {
     loadingMoreNotes,
   } = useNotes();
 
-  // Temporary workspace label until user/workspace data is available
-  const workspaceName = "Notebook";
+  const workspaceName = currentUser?.name
+    ? `${currentUser.name}'s Notebook`
+    : "Notebook";
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeSection, setActiveSection] = useState<NavSection>("home");
@@ -211,6 +213,7 @@ export function Home() {
         onLogout={() => void logout()}
         onOpenChat={() => setChatOpen(true)}
         workspaceName={workspaceName}
+        user={currentUser}
       />
 
       {/* Main */}

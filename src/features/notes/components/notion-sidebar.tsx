@@ -7,6 +7,8 @@ import {
     ChevronRight,
     StickyNote,
     LogOut,
+    UserRound,
+    Mail,
 } from "lucide-react";
 import { MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,11 +25,20 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+import {
     Tooltip,
     TooltipContent,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import type { AuthUser } from "@features/auth/auth-service";
 import type { Note } from "@features/notes/services/notes-service";
 import { useState, useEffect, useRef } from "react";
 
@@ -48,6 +59,7 @@ type NotionSidebarProps = {
     onLogout?: () => void;
     onOpenChat?: () => void;
     workspaceName: string;
+    user: AuthUser | null;
 };
 
 type NavItem = {
@@ -87,8 +99,10 @@ export function NotionSidebar({
     onLogout,
     onOpenChat,
     workspaceName,
+    user,
 }: NotionSidebarProps) {
     const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+    const [profileDialogOpen, setProfileDialogOpen] = useState(false);
 
     // ── Infinite scroll sentinel ──────────────────────────────────────────────
     const sentinelRef = useRef<HTMLDivElement>(null);
@@ -115,6 +129,11 @@ export function NotionSidebar({
         observer.observe(sentinel);
         return () => observer.disconnect();
     }, [hasMoreNotes, loadingMoreNotes]);
+
+    const userInitial = user?.name?.trim().charAt(0).toUpperCase() || "U";
+    const profileName = user?.name?.trim() || "User";
+    const profileEmail = user?.email?.trim() || "Email unavailable";
+    const profileStatus = user?.isActive === false ? "Inactive" : "Active";
 
     return (
         <>
@@ -276,7 +295,7 @@ export function NotionSidebar({
 
                     <Separator className="bg-zinc-200/70 dark:bg-white/10" />
 
-                    {/* New Page + Logout */}
+                    {/* New Page + Profile */}
                     <div className={cn("p-3 space-y-2", !isOpen && "flex flex-col items-center px-2")}>
                         <Tooltip>
                             <TooltipTrigger asChild>
@@ -301,21 +320,126 @@ export function NotionSidebar({
                                     <Button
                                         variant="ghost"
                                         className={cn(
-                                            "rounded-2xl text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100",
-                                            isOpen ? "w-full justify-start gap-2" : "w-10 h-10 p-0 justify-center"
+                                            "h-auto rounded-2xl text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100",
+                                            isOpen
+                                                ? "w-full justify-start gap-3 px-3 py-3"
+                                                : "w-10 h-10 p-0 justify-center"
                                         )}
-                                        onClick={() => setLogoutDialogOpen(true)}
+                                        onClick={() => setProfileDialogOpen(true)}
                                     >
-                                        <LogOut className="w-4 h-4 shrink-0" />
-                                        {isOpen && "Logout"}
+                                        {isOpen ? (
+                                            <>
+                                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-zinc-900 text-sm font-semibold text-white dark:bg-zinc-100 dark:text-zinc-900">
+                                                    {userInitial}
+                                                </div>
+                                                <div className="min-w-0 flex-1 text-left">
+                                                    <p className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                                                        {profileName}
+                                                    </p>
+                                                    <p className="truncate text-xs text-zinc-500 dark:text-zinc-400">
+                                                        {profileEmail}
+                                                    </p>
+                                                </div>
+                                                <UserRound className="w-4 h-4 shrink-0" />
+                                            </>
+                                        ) : (
+                                            <UserRound className="w-4 h-4 shrink-0" />
+                                        )}
                                     </Button>
                                 </TooltipTrigger>
-                                {!isOpen && <TooltipContent side="right">Logout</TooltipContent>}
+                                {!isOpen && <TooltipContent side="right">Profile</TooltipContent>}
                             </Tooltip>
                         )}
                     </div>
                 </div>
             </aside>
+
+            <Dialog open={profileDialogOpen} onOpenChange={setProfileDialogOpen}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Profile</DialogTitle>
+                        <DialogDescription>
+                            Account details from your current session.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-4 rounded-3xl bg-zinc-50 p-4 dark:bg-zinc-800/60">
+                            {user?.avatarUrl ? (
+                                <img
+                                    src={user.avatarUrl}
+                                    alt={profileName}
+                                    className="h-16 w-16 rounded-3xl object-cover ring-1 ring-black/5 dark:ring-white/10"
+                                />
+                            ) : (
+                                <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-zinc-900 text-xl font-semibold text-white dark:bg-zinc-100 dark:text-zinc-900">
+                                    {userInitial}
+                                </div>
+                            )}
+
+                            <div className="min-w-0">
+                                <p className="truncate text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+                                    {profileName}
+                                </p>
+                                <p className="mt-1 inline-flex rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
+                                    {profileStatus}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-3">
+                            <div className="rounded-2xl border border-zinc-200/70 px-4 py-3 dark:border-white/10">
+                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">
+                                    Name
+                                </p>
+                                <p className="mt-1 text-sm text-zinc-900 dark:text-zinc-100">
+                                    {profileName}
+                                </p>
+                            </div>
+
+                            <div className="rounded-2xl border border-zinc-200/70 px-4 py-3 dark:border-white/10">
+                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">
+                                    Email
+                                </p>
+                                <div className="mt-1 flex items-center gap-2 text-sm text-zinc-900 dark:text-zinc-100">
+                                    <Mail className="h-4 w-4 text-zinc-400 dark:text-zinc-500" />
+                                    <span className="truncate">{profileEmail}</span>
+                                </div>
+                            </div>
+
+                            <div className="rounded-2xl border border-zinc-200/70 px-4 py-3 dark:border-white/10">
+                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">
+                                    Workspace
+                                </p>
+                                <p className="mt-1 text-sm text-zinc-900 dark:text-zinc-100">
+                                    {workspaceName}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <DialogFooter>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setProfileDialogOpen(false)}
+                        >
+                            Close
+                        </Button>
+                        <Button
+                            type="button"
+                            className="bg-red-500 hover:bg-red-600"
+                            onClick={() => {
+                                setProfileDialogOpen(false);
+                                setLogoutDialogOpen(true);
+                            }}
+                        >
+                            <LogOut className="mr-2 h-4 w-4" />
+                            Logout
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
             {/* Logout confirmation dialog */}
             <AlertDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
