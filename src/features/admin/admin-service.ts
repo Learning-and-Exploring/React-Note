@@ -45,6 +45,28 @@ export type AdminUsersResponse = {
   meta: AdminUsersMeta | null;
 };
 
+export type AdminUserDevice = {
+  id: number;
+  userId: number;
+  browser: string;
+  os: string;
+  ip: string | null;
+  isDeleted: boolean;
+  createdAt?: string;
+  user?: AdminUser | null;
+};
+
+export type AdminUserDevicesParams = {
+  page?: number;
+  limit?: number;
+  includeDeleted?: boolean;
+};
+
+export type AdminUserDevicesResponse = {
+  data: AdminUserDevice[];
+  meta: AdminUsersMeta | null;
+};
+
 const adminApi = axios.create({
   baseURL: BASE_URL,
   withCredentials: true,
@@ -93,6 +115,36 @@ function normalizeUser(raw: unknown): AdminUser {
 function normalizeUsers(raw: unknown): AdminUser[] {
   if (!Array.isArray(raw)) return [];
   return raw.map(normalizeUser);
+}
+
+function normalizeUserDevice(raw: unknown): AdminUserDevice {
+  const record = (raw ?? {}) as Record<string, unknown>;
+  const browserValue =
+    typeof record.browser === "string"
+      ? record.browser
+      : typeof record.broswer === "string"
+        ? record.broswer
+        : "";
+
+  return {
+    id: Number(record.id ?? 0),
+    userId: Number(record.userId ?? 0),
+    browser: browserValue,
+    os: typeof record.os === "string" ? record.os : "",
+    ip: typeof record.ip === "string" ? record.ip : null,
+    isDeleted: Boolean(record.isDeleted),
+    createdAt:
+      typeof record.createdAt === "string" ? record.createdAt : undefined,
+    user:
+      record.user && typeof record.user === "object"
+        ? normalizeUser(record.user)
+        : null,
+  };
+}
+
+function normalizeUserDevices(raw: unknown): AdminUserDevice[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.map(normalizeUserDevice);
 }
 
 function extractToken(data: unknown): string {
@@ -195,6 +247,26 @@ export const adminService = {
       });
 
       return normalizeUser(response.data?.data ?? response.data);
+    } catch (error) {
+      throw new Error(extractMessage(error));
+    }
+  },
+
+  async listUserDevices(
+    params: AdminUserDevicesParams,
+    token: string,
+  ): Promise<AdminUserDevicesResponse> {
+    try {
+      const response = await adminApi.get("/admin/users/devices", {
+        headers: authHeaders(token),
+        params,
+      });
+      const raw = response.data ?? {};
+
+      return {
+        data: normalizeUserDevices((raw as Record<string, unknown>).data),
+        meta: ((raw as Record<string, unknown>).meta as AdminUsersMeta) ?? null,
+      };
     } catch (error) {
       throw new Error(extractMessage(error));
     }

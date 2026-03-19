@@ -25,8 +25,60 @@ export type PushCapability = {
   endpoint: string | null;
 };
 
+export type AdminNotification = {
+  id: number;
+  title: string;
+  body: string;
+  url: string | null;
+  type: string | null;
+  isRead: boolean;
+  readAt: string | null;
+  createdAt: string | null;
+};
+
+export type AdminNotificationsMeta = {
+  currentPage: number;
+  isFirstPage: boolean;
+  isLastPage: boolean;
+  nextPage: number | null;
+  previousPage: number | null;
+  pageCount: number;
+  totalCount: number;
+};
+
+export type AdminNotificationsResponse = {
+  data: AdminNotification[];
+  meta: AdminNotificationsMeta | null;
+};
+
+export type AdminNotificationsParams = {
+  page?: number;
+  limit?: number;
+  unreadOnly?: boolean;
+};
+
 function authHeaders(token?: string) {
   return token ? { Authorization: `Bearer ${token}` } : undefined;
+}
+
+function normalizeNotification(raw: unknown): AdminNotification {
+  const record = (raw ?? {}) as Record<string, unknown>;
+
+  return {
+    id: Number(record.id ?? 0),
+    title: String(record.title ?? ""),
+    body: String(record.body ?? ""),
+    url: typeof record.url === "string" ? record.url : null,
+    type: typeof record.type === "string" ? record.type : null,
+    isRead: Boolean(record.isRead),
+    readAt: typeof record.readAt === "string" ? record.readAt : null,
+    createdAt: typeof record.createdAt === "string" ? record.createdAt : null,
+  };
+}
+
+function normalizeNotifications(raw: unknown): AdminNotification[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.map(normalizeNotification);
 }
 
 function getVapidPublicKey() {
@@ -205,6 +257,86 @@ export const adminPushService = {
         },
         { headers: authHeaders(token) },
       );
+    } catch (error) {
+      throw new Error(extractMessage(error));
+    }
+  },
+
+  async listNotifications(
+    token: string,
+    params: AdminNotificationsParams = {},
+  ): Promise<AdminNotificationsResponse> {
+    try {
+      const response = await pushApi.get("/push/admin/notifications/me", {
+        headers: authHeaders(token),
+        params,
+      });
+      const raw = response.data ?? {};
+
+      return {
+        data: normalizeNotifications((raw as Record<string, unknown>).data),
+        meta:
+          ((raw as Record<string, unknown>).meta as AdminNotificationsMeta) ??
+          null,
+      };
+    } catch (error) {
+      throw new Error(extractMessage(error));
+    }
+  },
+
+  async getUnreadCount(token: string): Promise<number> {
+    try {
+      const response = await pushApi.get("/push/admin/notifications/me/unread-count", {
+        headers: authHeaders(token),
+      });
+      const data = response.data?.data ?? response.data;
+      const unreadCount = Number(
+        (data as Record<string, unknown> | undefined)?.unreadCount ?? 0,
+      );
+
+      return Number.isFinite(unreadCount) ? unreadCount : 0;
+    } catch (error) {
+      throw new Error(extractMessage(error));
+    }
+  },
+
+  async markNotificationAsRead(token: string, notificationId: number): Promise<void> {
+    try {
+      await pushApi.patch(
+        `/push/admin/notifications/me/${notificationId}/read`,
+        {},
+        {
+          headers: authHeaders(token),
+        },
+      );
+    } catch (error) {
+      throw new Error(extractMessage(error));
+    }
+  },
+
+  async markAllNotificationsAsRead(token: string): Promise<number> {
+    try {
+      const response = await pushApi.patch(
+        "/push/admin/notifications/me/read-all",
+        {},
+        {
+          headers: authHeaders(token),
+        },
+      );
+      const data = response.data?.data ?? response.data;
+      const count = Number((data as Record<string, unknown> | undefined)?.count ?? 0);
+
+      return Number.isFinite(count) ? count : 0;
+    } catch (error) {
+      throw new Error(extractMessage(error));
+    }
+  },
+
+  async deleteNotification(token: string, notificationId: number): Promise<void> {
+    try {
+      await pushApi.delete(`/push/admin/notifications/me/${notificationId}`, {
+        headers: authHeaders(token),
+      });
     } catch (error) {
       throw new Error(extractMessage(error));
     }
