@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAdmin } from "../hooks/use-admin";
 
+const ADMIN_LOGIN_SUCCESS_STORAGE_KEY = "admin-login-success-message";
+
 export function AdminAuthPage() {
   const { login, loading, error, clearError } = useAdmin();
   const [email, setEmail] = useState("");
@@ -16,11 +18,18 @@ export function AdminAuthPage() {
   const submit = async () => {
     clearError();
 
-    await login({
+    const didLogin = await login({
       email: email.trim(),
       password: password.trim(),
       privateKey: privateKey.trim(),
     });
+
+    if (didLogin && typeof window !== "undefined") {
+      window.sessionStorage.setItem(
+        ADMIN_LOGIN_SUCCESS_STORAGE_KEY,
+        "Admin login successful.",
+      );
+    }
   };
 
   return (

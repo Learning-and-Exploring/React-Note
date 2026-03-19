@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  Bell,
+  BellOff,
   ChevronLeft,
   ChevronRight,
   Loader2,
   LogOut,
   RefreshCw,
   Search,
+  Send,
   Shield,
   ShieldAlert,
   ShieldCheck,
@@ -21,6 +24,11 @@ import {
   type AdminUser,
   type AdminUsersMeta,
 } from "../admin-service";
+import {
+  adminPushService,
+  extractAdminIdFromToken,
+  type PushCapability,
+} from "../admin-push-service";
 import { useAdmin } from "../hooks/use-admin";
 import { formatDate } from "@features/notes/utils/format-date";
 
@@ -45,6 +53,13 @@ const DEFAULT_FILTERS: FilterState = {
 };
 
 const PAGE_SIZE = 10;
+const ADMIN_LOGIN_SUCCESS_STORAGE_KEY = "admin-login-success-message";
+const DEFAULT_PUSH_CAPABILITY: PushCapability = {
+  supported: false,
+  permission: "unsupported",
+  subscribed: false,
+  endpoint: null,
+};
 
 function getCurrentPage(meta: AdminUsersMeta | null) {
   return meta?.currentPage ?? meta?.page ?? 1;
@@ -111,6 +126,10 @@ function SummaryCard({ label, value, helper }: SummaryCardProps) {
 
 export function AdminDashboardPage() {
   const { token, admin, logout } = useAdmin();
+  const adminId = useMemo(
+    () => (token ? extractAdminIdFromToken(token) : null),
+    [token],
+  );
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
   const [appliedFilters, setAppliedFilters] =
     useState<FilterState>(DEFAULT_FILTERS);
@@ -124,10 +143,22 @@ export function AdminDashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [actionLoadingId, setActionLoadingId] = useState<number | null>(null);
+  const [pushCapability, setPushCapability] = useState<PushCapability>(
+    DEFAULT_PUSH_CAPABILITY,
+  );
+  const [pushLoading, setPushLoading] = useState(false);
+  const [sendingPushTest, setSendingPushTest] = useState(false);
 
   const currentPage = getCurrentPage(meta);
   const totalPages = getPageCount(meta);
   const selectedStatusTone = getStatusTone(selectedUser);
+  const pushStatusLabel = useMemo(() => {
+    if (!pushCapability.supported) return "Unsupported";
+    if (pushCapability.permission === "denied") return "Blocked";
+    if (pushCapability.subscribed) return "Connected";
+    if (pushCapability.permission === "granted") return "Ready";
+    return "Not enabled";
+  }, [pushCapability]);
 
   const querySummary = useMemo(() => {
     const parts = [
@@ -225,6 +256,48 @@ export function AdminDashboardPage() {
     return () => window.clearTimeout(timeout);
   }, [successMessage]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const loginMessage = window.sessionStorage.getItem(
+      ADMIN_LOGIN_SUCCESS_STORAGE_KEY,
+    );
+
+    if (!loginMessage) return;
+
+    window.sessionStorage.removeItem(ADMIN_LOGIN_SUCCESS_STORAGE_KEY);
+    setError(null);
+    setSuccessMessage(loginMessage);
+  }, []);
+
+  useEffect(() => {
+    if (!token) {
+      setPushCapability(DEFAULT_PUSH_CAPABILITY);
+      return;
+    }
+
+    let active = true;
+
+    const syncPushCapability = async () => {
+      try {
+        const capability = await adminPushService.getCapability();
+        if (active) {
+          setPushCapability(capability);
+        }
+      } catch {
+        if (active) {
+          setPushCapability(DEFAULT_PUSH_CAPABILITY);
+        }
+      }
+    };
+
+    void syncPushCapability();
+
+    return () => {
+      active = false;
+    };
+  }, [token]);
+
   const handleSubmitFilters = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setPage(1);
@@ -267,6 +340,65 @@ export function AdminDashboardPage() {
       setError(err instanceof Error ? err.message : "Failed to update user.");
     } finally {
       setActionLoadingId(null);
+    }
+  };
+
+  const handleEnablePush = async () => {
+    if (!token) return;
+
+    setPushLoading(true);
+    setError(null);
+    setSuccessMessage(null);
+
+    try {
+      const capability = await adminPushService.subscribe(token);
+      setPushCapability(capability);
+      setSuccessMessage("Push notifications enabled for this browser.");
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to enable push notifications.",
+      );
+    } finally {
+      setPushLoading(false);
+    }
+  };
+
+  const handleDisablePush = async () => {
+    if (!token) return;
+
+    setPushLoading(true);
+    setError(null);
+    setSuccessMessage(null);
+
+    try {
+      const capability = await adminPushService.unsubscribe(token);
+      setPushCapability(capability);
+      setSuccessMessage("Push notifications disabled for this browser.");
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to disable push notifications.",
+      );
+    } finally {
+      setPushLoading(false);
+    }
+  };
+
+  const handleSendPushTest = async () => {
+    if (!token || !adminId) return;
+
+    setSendingPushTest(true);
+    setError(null);
+    setSuccessMessage(null);
+
+    try {
+      await adminPushService.sendTestNotification(token, adminId);
+      setSuccessMessage("Test notification sent.");
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to send test notification.",
+      );
+    } finally {
+      setSendingPushTest(false);
     }
   };
 
@@ -386,6 +518,90 @@ export function AdminDashboardPage() {
                   value={`${currentPage}/${totalPages}`}
                   helper="Server-side pagination"
                 />
+              </section>
+
+              <section className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-zinc-900">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                  <div>
+                    <h2 className="text-xl font-semibold tracking-tight text-slate-950 dark:text-slate-50">
+                      Browser Notifications
+                    </h2>
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                      Connect this admin browser to the backend push endpoints.
+                    </p>
+                  </div>
+
+                  <Badge
+                    className={statusClasses(
+                      pushCapability.subscribed
+                        ? "emerald"
+                        : pushCapability.permission === "denied"
+                          ? "rose"
+                          : "slate",
+                    )}
+                    variant="outline"
+                  >
+                    {pushStatusLabel}
+                  </Badge>
+                </div>
+
+                <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+                  <div className="rounded-3xl border border-slate-200/80 bg-slate-50/80 p-4 dark:border-white/10 dark:bg-white/5">
+                    <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                      Permission:{" "}
+                      <span className="font-semibold capitalize">
+                        {pushCapability.permission}
+                      </span>
+                    </p>
+                    <p className="mt-2 break-all text-xs text-slate-500 dark:text-slate-400">
+                      {pushCapability.endpoint
+                        ? `Endpoint: ${pushCapability.endpoint}`
+                        : "No push subscription is saved for this browser yet."}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      className="rounded-2xl"
+                      disabled={pushLoading || !pushCapability.supported}
+                      onClick={() => void handleEnablePush()}
+                    >
+                      {pushLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Bell className="h-4 w-4" />
+                      )}
+                      Enable
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="rounded-2xl"
+                      disabled={pushLoading || !pushCapability.supported}
+                      onClick={() => void handleDisablePush()}
+                    >
+                      <BellOff className="h-4 w-4" />
+                      Disable
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      className="rounded-2xl"
+                      disabled={
+                        sendingPushTest ||
+                        !pushCapability.subscribed ||
+                        !token ||
+                        !adminId
+                      }
+                      onClick={() => void handleSendPushTest()}
+                    >
+                      {sendingPushTest ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Send className="h-4 w-4" />
+                      )}
+                      Send test
+                    </Button>
+                  </div>
+                </div>
               </section>
 
               <section className="grid gap-6 xl:grid-cols-[minmax(0,1.55fr)_380px]">
